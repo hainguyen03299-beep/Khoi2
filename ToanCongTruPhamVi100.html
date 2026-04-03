@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bé Học Toán - Cộng Trừ Phạm Vi 100 - Phép Nhân Với 2 và 5</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: linear-gradient(135deg, #a8e6cf 0%, #dcedc1 100%);
+            overflow-x: hidden;
+            margin: 0;
+            user-select: none;
+        }
+
+        .star {
+            position: fixed;
+            color: #fff;
+            font-size: 20px;
+            pointer-events: none;
+            z-index: 0;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+        }
+
+        .card-game {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border: 4px solid #81c784;
+        }
+
+        .btn-answer {
+            transition: all 0.2s;
+            border-bottom: 5px solid #388e3c;
+        }
+        .btn-answer:active {
+            transform: translateY(4px);
+            border-bottom: 0;
+        }
+        
+        .pulse {
+            animation: pulse-animation 2s infinite;
+        }
+
+        @keyframes pulse-animation {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .hidden { display: none; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+    <!-- Star Background -->
+    <div id="stars-container"></div>
+
+    <!-- Background Music (Dummy logic as real files need hosting) -->
+    <audio id="bgMusic" loop>
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="correctSound">
+        <source src="https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="wrongSound">
+        <source src="https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3" type="audio/mpeg">
+    </audio>
+
+    <div class="max-w-xl w-full z-10">
+        <!-- Màn hình chào mừng -->
+        <div id="welcome-screen" class="card-game p-8 text-center">
+            <h1 class="text-4xl font-bold text-green-700 mb-6">🌟 BÉ HỌC TOÁN 🌟</h1>
+            <p class="text-lg text-gray-600 mb-6 font-semibold">Cộng Trừ 100 - Phép Nhân Với 2 và 5</p>
+            
+            <div class="mb-6">
+                <input type="text" id="studentName" placeholder="Nhập họ và tên của bé..." 
+                    class="w-full p-4 rounded-2xl border-2 border-green-300 focus:outline-none focus:border-green-500 text-center text-xl">
+            </div>
+
+            <button onclick="startGame()" class="pulse bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-10 rounded-full text-2xl shadow-lg transition btn-answer">
+                BẮT ĐẦU CHƠI 🚀
+            </button>
+            <p class="mt-4 text-sm text-gray-500 italic"> Được tạo bở Cô Nguyên - THCS Tam Giang</p>
+        </div>
+
+        <!-- Màn hình chơi game -->
+        <div id="game-screen" class="card-game p-6 hidden">
+            <div class="flex justify-between items-center mb-6">
+                <div class="bg-green-100 px-4 py-2 rounded-full font-bold text-green-700">
+                    Câu: <span id="currentQuestionNum">1</span>/20
+                </div>
+                <div class="bg-yellow-100 px-4 py-2 rounded-full font-bold text-yellow-700">
+                    ⏱️ <span id="timer">00:00</span>
+                </div>
+                <div class="bg-blue-100 px-4 py-2 rounded-full font-bold text-blue-700">
+                    Điểm: <span id="currentScore">0</span>
+                </div>
+            </div>
+
+            <div class="text-center mb-8">
+                <div id="questionText" class="text-3xl md:text-4xl font-bold text-gray-800 bg-gray-50 p-8 rounded-3xl border-2 border-dashed border-green-200">
+                    Đang tải câu hỏi...
+                </div>
+            </div>
+
+            <div id="answersGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Đáp án sẽ render ở đây -->
+            </div>
+            
+            <div class="mt-6 text-center text-gray-400 text-sm">
+                Cố lên nhé <span id="displayName" class="font-bold text-green-600"></span>! 💪
+            </div>
+        </div>
+
+        <!-- Màn hình kết thúc -->
+        <div id="result-screen" class="card-game p-8 text-center hidden">
+            <h2 class="text-4xl font-bold text-yellow-600 mb-2">CHÚC MỪNG 🎉</h2>
+            <div id="honoredName" class="text-2xl font-bold text-green-700 mb-6 underline">Học sinh: Nguyễn Văn A</div>
+            
+            <div class="bg-yellow-50 rounded-3xl p-6 mb-6 border-2 border-yellow-200">
+                <div class="text-6xl font-black text-red-500 mb-2"><span id="finalScore">0</span>/10</div>
+                <div class="text-gray-600 font-bold text-xl">Số câu đúng: <span id="correctCount">0</span>/20</div>
+            </div>
+
+            <div class="text-lg text-gray-700 mb-8 space-y-2">
+                <p>Tổng thời gian: <span id="finalTime" class="font-bold">00:00</span></p>
+                <p id="rankMessage" class="text-green-600 font-bold text-2xl italic"></p>
+            </div>
+
+            <button onclick="location.reload()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 px-10 rounded-full text-xl shadow-lg transition btn-answer">
+                CHƠI LẠI TỪ ĐẦU 🔄
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // DỮ LIỆU CÂU HỎI
+        const KHO_DE = {
+            nhan_biet: [
+                { q: "25 + 14 = ?", a: ["39", "29", "41", "40"] },
+                { q: "78 − 23 = ?", a: ["55", "45", "65", "50"] },
+                { q: "36 + 22 = ?", a: ["58", "68", "56", "48"] },
+                { q: "90 − 40 = ?", a: ["50", "60", "40", "30"] },
+                { q: "7 × 2 = ?", a: ["14", "12", "16", "10"] },
+                { q: "5 × 6 = ?", a: ["30", "25", "35", "20"] },
+                { q: "18 + 21 = ?", a: ["39", "40", "41", "38"] },
+                { q: "64 − 32 = ?", a: ["32", "34", "30", "28"] },
+                { q: "9 × 2 = ?", a: ["18", "16", "20", "14"] },
+                { q: "5 × 8 = ?", a: ["40", "35", "45", "50"] },
+                { q: "45 + 30 = ?", a: ["75", "65", "85", "70"] },
+                { q: "70 − 25 = ?", a: ["45", "35", "55", "50"] },
+                { q: "12 × 2 = ?", a: ["24", "22", "20", "26"] },
+                { q: "5 × 9 = ?", a: ["45", "35", "40", "50"] },
+                { q: "33 + 44 = ?", a: ["77", "87", "67", "75"] },
+                { q: "88 − 22 = ?", a: ["66", "56", "64", "72"] },
+                { q: "6 × 2 = ?", a: ["12", "10", "14", "8"] },
+                { q: "5 × 4 = ?", a: ["20", "15", "25", "10"] },
+                { q: "27 + 13 = ?", a: ["40", "30", "50", "45"] },
+                { q: "100 − 60 = ?", a: ["40", "30", "50", "60"] },
+                { q: "8 × 2 = ?", a: ["16", "14", "18", "12"] },
+                { q: "5 × 3 = ?", a: ["15", "10", "20", "25"] },
+                { q: "49 + 11 = ?", a: ["60", "70", "50", "55"] },
+                { q: "80 − 20 = ?", a: ["60", "50", "70", "40"] },
+                { q: "10 × 2 = ?", a: ["20", "15", "25", "30"] },
+                { q: "5 × 7 = ?", a: ["35", "30", "40", "25"] },
+                { q: "60 + 20 = ?", a: ["80", "70", "90", "100"] },
+                { q: "95 − 15 = ?", a: ["80", "70", "85", "75"] },
+                { q: "4 × 2 = ?", a: ["8", "6", "10", "12"] },
+                { q: "5 × 10 = ?", a: ["50", "40", "60", "45"] }
+            ],
+            thong_hieu: [
+                { q: "25 + 30 = ?", a: ["55", "50", "60", "65"] },
+                { q: "72 − 20 = ?", a: ["52", "42", "62", "50"] },
+                { q: "15 + 15 = ?", a: ["30", "20", "25", "35"] },
+                { q: "5 × 4 + 10 = ?", a: ["30", "20", "25", "35"] },
+                { q: "40 − 10 + 5 = ?", a: ["35", "25", "30", "45"] },
+                { q: "6 × 2 + 8 = ?", a: ["20", "18", "22", "24"] },
+                { q: "50 + 25 − 10 = ?", a: ["65", "55", "75", "70"] },
+                { q: "5 × 3 + 5 = ?", a: ["20", "15", "25", "30"] },
+                { q: "90 − 40 + 10 = ?", a: ["60", "50", "70", "80"] },
+                { q: "2 × 7 + 6 = ?", a: ["20", "18", "16", "14"] },
+                { q: "60 − 15 + 5 = ?", a: ["50", "45", "55", "40"] },
+                { q: "5 × 6 − 10 = ?", a: ["20", "25", "30", "15"] },
+                { q: "33 + 22 − 10 = ?", a: ["45", "55", "35", "50"] },
+                { q: "80 − 30 − 10 = ?", a: ["40", "30", "50", "60"] },
+                { q: "4 × 2 + 12 = ?", a: ["20", "16", "18", "22"] },
+                { q: "5 × 8 − 10 = ?", a: ["30", "20", "25", "35"] },
+                { q: "70 + 10 − 20 = ?", a: ["60", "50", "70", "80"] },
+                { q: "5 × 2 + 5 × 3 = ?", a: ["25", "20", "30", "35"] },
+                { q: "48 − 18 + 10 = ?", a: ["40", "30", "50", "60"] },
+                { q: "6 × 2 + 4 × 2 = ?", a: ["20", "16", "24", "18"] },
+                { q: "100 − 50 − 20 = ?", a: ["30", "20", "40", "50"] },
+                { q: "5 × 9 − 10 = ?", a: ["35", "40", "45", "50"] },
+                { q: "25 + 25 − 15 = ?", a: ["35", "30", "40", "45"] },
+                { q: "2 × 8 + 6 = ?", a: ["22", "20", "24", "26"] },
+                { q: "5 × 7 − 5 = ?", a: ["30", "25", "35", "40"] },
+                { q: "60 − 20 + 15 = ?", a: ["55", "45", "65", "50"] },
+                { q: "3 × 2 + 5 × 2 = ?", a: ["16", "10", "12", "14"] },
+                { q: "45 + 15 − 20 = ?", a: ["40", "30", "50", "60"] },
+                { q: "5 × 4 + 5 × 2 = ?", a: ["30", "20", "40", "25"] },
+                { q: "80 − 40 + 10 = ?", a: ["50", "40", "60", "70"] }
+            ],
+            van_dung: [
+                { q: "An có 25 viên bi, thêm 15 viên. Hỏi An có tất cả?", a: ["40", "30", "35", "45"] },
+                { q: "Bình có 50 kẹo, cho bạn 20 kẹo. Còn lại bao nhiêu?", a: ["30", "20", "40", "25"] },
+                { q: "Một nhóm 5 bạn, mỗi bạn 2 quyển sách. Có tất cả bao nhiêu?", a: ["10", "7", "12", "15"] },
+                { q: "5 túi, mỗi túi có 8 quả táo. Có tất cả bao nhiêu?", a: ["40", "30", "35", "45"] },
+                { q: "60 − 25 = ?", a: ["35", "30", "40", "45"] },
+                { q: "12 + 18 = ?", a: ["30", "28", "32", "34"] },
+                { q: "7 × 2 + 5 = ?", a: ["19", "17", "21", "23"] },
+                { q: "Lan có 30 bút, mua thêm 20 bút. Tất cả có bao nhiêu?", a: ["50", "40", "60", "70"] },
+                { q: "90 − 45 = ?", a: ["45", "35", "50", "55"] },
+                { q: "Một lớp có 6 nhóm, mỗi nhóm 5 học sinh. Có bao nhiêu?", a: ["30", "25", "35", "40"] },
+                { q: "100 − 60 + 20 = ?", a: ["60", "50", "70", "80"] },
+                { q: "5 × 9 + 5 = ?", a: ["50", "40", "45", "55"] },
+                { q: "48 − 28 = ?", a: ["20", "10", "15", "25"] },
+                { q: "3 × 2 + 4 × 2 = ?", a: ["14", "12", "16", "18"] },
+                { q: "70 − 20 + 5 = ?", a: ["55", "45", "50", "60"] },
+                { q: "5 × 8 − 20 = ?", a: ["20", "25", "30", "35"] },
+                { q: "25 + 35 − 10 = ?", a: ["50", "40", "45", "55"] },
+                { q: "6 × 2 + 10 = ?", a: ["22", "18", "20", "24"] },
+                { q: "5 × 3 + 5 × 2 = ?", a: ["25", "20", "30", "35"] },
+                { q: "90 − 50 − 10 = ?", a: ["30", "20", "40", "50"] },
+                { q: "4 × 2 + 3 × 2 = ?", a: ["14", "10", "12", "16"] },
+                { q: "65 + 15 − 20 = ?", a: ["60", "50", "55", "70"] },
+                { q: "5 × 10 − 20 = ?", a: ["30", "20", "40", "50"] },
+                { q: "2 × 8 + 2 × 5 = ?", a: ["26", "20", "30", "36"] },
+                { q: "100 − 75 + 10 = ?", a: ["35", "25", "30", "40"] },
+                { q: "Một rổ có 5 hàng, mỗi hàng 6 quả cam. Có bao nhiêu?", a: ["30", "25", "35", "40"] },
+                { q: "40 + 30 − 15 = ?", a: ["55", "45", "50", "60"] },
+                { q: "5 × 6 + 10 = ?", a: ["40", "30", "50", "60"] },
+                { q: "72 − 32 = ?", a: ["40", "30", "35", "45"] },
+                { q: "2 × 7 + 2 × 6 = ?", a: ["26", "20", "22", "24"] },
+                { q: "55 − 25 + 10 = ?", a: ["40", "30", "35", "45"] },
+                { q: "5 × 4 + 5 × 6 = ?", a: ["50", "40", "45", "55"] },
+                { q: "80 − 40 + 20 = ?", a: ["60", "50", "70", "80"] },
+                { q: "3 × 2 + 7 × 2 = ?", a: ["20", "18", "22", "24"] },
+                { q: "60 − 20 − 10 = ?", a: ["30", "20", "25", "35"] },
+                { q: "5 x 4 + 10 = ?", a: ["30", "25", "35", "40"] },
+                { q: "80 - 30 - 10 = ?", a: ["40", "30", "50", "60"] },
+                { q: "2 x 9 + 8 = ?", a: ["26", "24", "28", "30"] },
+                { q: "5 x 7 - 5 = ?", a: ["30", "25", "35", "40"] },
+                { q: "5 túi mỗi túi 6 kẹo, thêm 4 kẹo nữa có?", a: ["34", "30", "36", "40"] }
+            ]
+        };
+
+        let currentQuestions = [];
+        let currentIndex = 0;
+        let score = 0;
+        let correctCount = 0;
+        let timerInterval;
+        let totalSeconds = 0;
+
+        // TẠO HIỆU ỨNG NGÔI SAO
+        function createStars() {
+            const container = document.getElementById('stars-container');
+            for (let i = 0; i < 20; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.innerHTML = '⭐';
+                star.style.left = Math.random() * 100 + 'vw';
+                star.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                star.style.animationDelay = Math.random() * 5 + 's';
+                container.appendChild(star);
+            }
+        }
+
+        // TRỘN MẢNG
+        function shuffle(array) {
+            return array.sort(() => Math.random() - 0.5);
+        }
+
+        // LẤY CÂU HỎI THEO TỈ LỆ
+        function prepareQuestions() {
+            // Nhận biết: 30% của 20 câu = 6 câu
+            // Thông hiểu: 30% của 20 câu = 6 câu
+            // Vận dụng: 40% của 20 câu = 8 câu
+            let q1 = shuffle([...KHO_DE.nhan_biet]).slice(0, 6);
+            let q2 = shuffle([...KHO_DE.thong_hieu]).slice(0, 6);
+            let q3 = shuffle([...KHO_DE.van_dung]).slice(0, 8);
+            
+            return shuffle([...q1, ...q2, ...q3]);
+        }
+
+        // BẮT ĐẦU GAME
+        function startGame() {
+            const name = document.getElementById('studentName').value.trim();
+            if (!name) {
+                alert("Bé ơi, hãy nhập tên của mình vào nhé!");
+                return;
+            }
+
+            document.getElementById('displayName').innerText = name;
+            document.getElementById('welcome-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+
+            // Âm thanh
+            document.getElementById('bgMusic').volume = 0.3;
+            document.getElementById('bgMusic').play();
+
+            currentQuestions = prepareQuestions();
+            currentIndex = 0;
+            score = 0;
+            correctCount = 0;
+            totalSeconds = 0;
+
+            startTimer();
+            showQuestion();
+        }
+
+        // HIỂN THỊ CÂU HỎI
+        function showQuestion() {
+            const qData = currentQuestions[currentIndex];
+            document.getElementById('currentQuestionNum').innerText = currentIndex + 1;
+            document.getElementById('questionText').innerText = qData.q;
+            
+            const answersGrid = document.getElementById('answersGrid');
+            answersGrid.innerHTML = '';
+
+            // Lấy đáp án đúng (là phần tử đầu tiên trong mảng a gốc)
+            const correctAnswer = qData.a[0];
+            
+            // Trộn đáp án để hiển thị
+            const shuffledAnswers = shuffle([...qData.a]);
+
+            shuffledAnswers.forEach(ans => {
+                const btn = document.createElement('button');
+                btn.className = "bg-white hover:bg-green-50 text-green-700 font-bold py-4 px-6 rounded-2xl text-xl shadow border-2 border-green-200 btn-answer";
+                btn.innerText = ans;
+                btn.onclick = () => checkAnswer(ans, correctAnswer);
+                answersGrid.appendChild(btn);
+            });
+        }
+
+        // KIỂM TRA ĐÁP ÁN
+        function checkAnswer(selected, correct) {
+            if (selected === correct) {
+                correctCount++;
+                score = (correctCount * 0.5).toFixed(1);
+                document.getElementById('correctSound').play();
+                document.getElementById('currentScore').innerText = score;
+            } else {
+                document.getElementById('wrongSound').play();
+            }
+
+            currentIndex++;
+            if (currentIndex < 20) {
+                showQuestion();
+            } else {
+                endGame();
+            }
+        }
+
+        // ĐỒNG HỒ
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                totalSeconds++;
+                const mins = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
+                const secs = (totalSeconds % 60).toString().padStart(2, '0');
+                document.getElementById('timer').innerText = `${mins}:${secs}`;
+            }, 1000);
+        }
+
+        // KẾT THÚC
+        function endGame() {
+            clearInterval(timerInterval);
+            document.getElementById('bgMusic').pause();
+            
+            document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+
+            document.getElementById('honoredName').innerText = "Học sinh: " + document.getElementById('studentName').value;
+            document.getElementById('finalScore').innerText = score;
+            document.getElementById('correctCount').innerText = correctCount;
+            document.getElementById('finalTime').innerText = document.getElementById('timer').innerText;
+
+            let msg = "";
+            if (score >= 9) msg = "Xuất sắc quá! Bé là thiên tài toán học! 🏆";
+            else if (score >= 7) msg = "Giỏi lắm! Phát huy bé nhé! 🌟";
+            else if (score >= 5) msg = "Khá lắm! Cố gắng thêm chút nữa nhé! 💪";
+            else msg = "Bé hãy luyện tập thêm để giỏi hơn nhé! ❤️";
+            document.getElementById('rankMessage').innerText = msg;
+        }
+
+        window.onload = createStars;
+    </script>
+</body>
+</html>
