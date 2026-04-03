@@ -34,6 +34,7 @@
             border-radius: 30px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
             border: 4px solid #81c784;
+            position: relative;
         }
 
         .btn-answer {
@@ -70,6 +71,23 @@
             100% { transform: scale(1); }
         }
 
+        /* Hiệu ứng hiện Icon phản hồi - Đã điều chỉnh kích thước nhỏ lại */
+        #feedback-icon {
+            position: absolute;
+            top: 20%; /* Đưa lên cao hơn một chút để không che đáp án */
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            font-size: 60px; /* Giảm từ 100px xuống 60px */
+            z-index: 50;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+        }
+
+        #feedback-icon.show {
+            transform: translate(-50%, -50%) scale(1.2);
+        }
+
         .hidden { display: none; }
         .disabled { pointer-events: none; }
     </style>
@@ -77,6 +95,7 @@
 <body class="min-h-screen flex items-center justify-center p-4">
     <div id="stars-container"></div>
 
+    <!-- Âm thanh -->
     <audio id="bgMusic" loop>
         <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
     </audio>
@@ -106,6 +125,9 @@
 
         <!-- Màn hình chơi game -->
         <div id="game-screen" class="card-game p-6 hidden">
+            <!-- Icon phản hồi đúng/sai -->
+            <div id="feedback-icon"></div>
+
             <div class="flex justify-between items-center mb-6">
                 <div class="bg-green-100 px-4 py-2 rounded-full font-bold text-green-700">
                     Câu: <span id="currentQuestionNum">1</span>/20
@@ -139,7 +161,7 @@
             <div id="honoredName" class="text-2xl font-bold text-green-700 mb-6 underline">Học sinh: </div>
             
             <div class="bg-yellow-50 rounded-3xl p-6 mb-6 border-2 border-yellow-200">
-                <div class="text-6xl font-black text-red-500 mb-2"><span id="finalScore">0</span>/10</div>
+                <div class="text-6xl font-black text-red-500 mb-2"><span id="finalScore">0</span></div>
                 <div class="text-gray-600 font-bold text-xl">Số câu đúng: <span id="correctCount">0</span>/20</div>
             </div>
 
@@ -148,14 +170,14 @@
                 <p id="rankMessage" class="text-green-600 font-bold text-2xl italic"></p>
             </div>
 
-            <button onclick="location.reload()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 px-10 rounded-full text-xl shadow-lg transition btn-answer">
+            <button onclick="window.location.reload()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 px-10 rounded-full text-xl shadow-lg transition btn-answer">
                 CHƠI LẠI TỪ ĐẦU 🔄
             </button>
         </div>
     </div>
 
     <script>
-        // DỮ LIỆU CÂU HỎI (Đã lọc bỏ các câu hỏi có 3 phép tính/số hạng trở lên)
+        // DỮ LIỆU CÂU HỎI
         const KHO_DE = {
             nhan_biet: [
                 { q: "25 + 14 = ?", a: ["39", "29", "41", "40"] },
@@ -236,7 +258,6 @@
         }
 
         function prepareQuestions() {
-            // Lấy ngẫu nhiên theo tỉ lệ 6-6-8 để đủ 20 câu
             let q1 = shuffle([...KHO_DE.nhan_biet]).slice(0, 6);
             let q2 = shuffle([...KHO_DE.thong_hieu]).slice(0, 6);
             let q3 = shuffle([...KHO_DE.van_dung]).slice(0, 8);
@@ -246,7 +267,11 @@
         function startGame() {
             const name = document.getElementById('studentName').value.trim();
             if (!name) {
-                alert("Bé ơi, hãy nhập tên của mình vào nhé!");
+                const errorBox = document.createElement('div');
+                errorBox.innerText = "Bé ơi, hãy nhập tên của mình vào nhé!";
+                errorBox.className = "fixed top-10 left-1/2 -translate-x-1/2 bg-red-500 text-white px-6 py-3 rounded-full shadow-lg z-50 animate-bounce";
+                document.body.appendChild(errorBox);
+                setTimeout(() => errorBox.remove(), 3000);
                 return;
             }
 
@@ -254,8 +279,9 @@
             document.getElementById('welcome-screen').classList.add('hidden');
             document.getElementById('game-screen').classList.remove('hidden');
 
-            document.getElementById('bgMusic').volume = 0.2;
-            document.getElementById('bgMusic').play().catch(() => {});
+            const bgMusic = document.getElementById('bgMusic');
+            bgMusic.volume = 0.2;
+            bgMusic.play().catch(() => {});
 
             currentQuestions = prepareQuestions();
             currentIndex = 0;
@@ -270,6 +296,10 @@
 
         function showQuestion() {
             canAnswer = true;
+            // Ẩn icon phản hồi
+            const feedback = document.getElementById('feedback-icon');
+            feedback.classList.remove('show');
+            
             const qData = currentQuestions[currentIndex];
             document.getElementById('currentQuestionNum').innerText = currentIndex + 1;
             document.getElementById('questionText').innerText = qData.q;
@@ -282,7 +312,7 @@
 
             shuffledAnswers.forEach(ans => {
                 const btn = document.createElement('button');
-                btn.className = "bg-white hover:bg-green-50 text-green-700 font-bold py-4 px-6 rounded-2xl text-xl shadow border-2 border-green-200 btn-answer";
+                btn.className = "bg-white text-green-700 font-bold py-4 px-6 rounded-2xl text-xl shadow border-2 border-green-200 btn-answer";
                 btn.innerText = ans;
                 btn.onclick = () => checkAnswer(btn, ans, correctAnswer);
                 answersGrid.appendChild(btn);
@@ -293,27 +323,42 @@
             if (!canAnswer) return;
             canAnswer = false;
 
+            const feedback = document.getElementById('feedback-icon');
             const buttons = document.querySelectorAll('.btn-answer');
             buttons.forEach(b => b.classList.add('disabled'));
 
+            let delayTime = 0;
+
             if (selected === correct) {
+                // ĐÚNG
                 correctCount++;
                 score = (correctCount * 0.5).toFixed(1);
                 btn.classList.add('correct-ans');
                 document.getElementById('correctSound').play();
                 document.getElementById('currentScore').innerText = score;
+                
+                // Hiện mặt cười cỡ nhỏ
+                feedback.innerHTML = "😊";
+                feedback.classList.add('show');
+                
+                delayTime = 800; // Đúng thì chuyển nhanh sau 0.8s
             } else {
+                // SAI
                 btn.classList.add('wrong-ans');
-                // Hiển thị đáp án đúng để học sinh xem
                 buttons.forEach(b => {
                     if (b.innerText === correct) {
                         b.classList.add('correct-ans');
                     }
                 });
                 document.getElementById('wrongSound').play();
+                
+                // Hiện mặt buồn cỡ nhỏ
+                feedback.innerHTML = "😢";
+                feedback.classList.add('show');
+                
+                delayTime = 3000; // Sai thì dừng 3 giây để xem đáp án
             }
 
-            // Dừng 2 giây để học sinh quan sát
             setTimeout(() => {
                 currentIndex++;
                 if (currentIndex < 20) {
@@ -321,7 +366,7 @@
                 } else {
                     endGame();
                 }
-            }, 2000);
+            }, delayTime);
         }
 
         function startTimer() {
