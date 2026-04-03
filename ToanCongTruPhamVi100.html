@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bé Học Toán Vui</title>
+    <title>Bé Học Toán Vui - Thách Thức 100</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -81,20 +81,20 @@
         .hidden { display: none !important; }
         .disabled { pointer-events: none; }
 
-        /* Custom scrollbar cho Bảng xếp hạng */
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 8px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: #f1f1f1; 
-            border-radius: 10px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #a8e6cf; 
-            border-radius: 10px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #81c784; 
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #a8e6cf; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #81c784; }
+
+        /* Animation cho dòng cổ vũ xuyên suốt */
+        .encouragement-footer {
+            position: fixed;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            z-index: 40;
+            pointer-events: none;
         }
     </style>
 </head>
@@ -111,11 +111,17 @@
         <source src="https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3" type="audio/mpeg">
     </audio>
 
-    <div class="max-w-xl w-full z-10">
-        <!-- Màn Hình Chào Mừng -->
+    <!-- Dòng cổ vũ xuất hiện xuyên suốt khi bắt đầu game -->
+    <div id="globalEncouragement" class="encouragement-footer hidden">
+        <div class="inline-block bg-white/80 backdrop-blur-sm px-6 py-2 rounded-full shadow-lg border-2 border-orange-300 text-orange-600 font-bold text-lg sm:text-xl animate-pulse">
+            <span id="globalEncouragementText">Cố lên nhé bé! 💪🌟</span>
+        </div>
+    </div>
+
+    <div class="max-w-xl w-full z-10 mb-12">
         <div id="welcome-screen" class="card-game p-8 text-center">
             <h1 class="text-4xl font-bold text-green-700 mb-4">🌟 BÉ HỌC TOÁN 🌟</h1>
-            <p class="text-lg text-gray-600 mb-6 font-semibold">Phép tính: Cộng Trừ Trong Phạm Vi 100,Phép Nhân Với  2 & 5<br></p>
+            <p class="text-lg text-gray-600 mb-6 font-semibold">Thử Thách Phép Toán Cộng Trừ Phạm Vi 100, Nhân 2,5</p>
             
             <div class="mb-6">
                 <input type="text" id="studentName" placeholder="Nhập tên của bé..." 
@@ -130,10 +136,8 @@
                     BẢNG XẾP HẠNG 🏆
                 </button>
             </div>
-            <p class="mt-4 text-sm text-gray-500 italic">Chúc bé làm tốt nhé!</p>
         </div>
 
-        <!-- Màn Hình Chơi Game -->
         <div id="game-screen" class="card-game p-6 hidden">
             <div id="feedback-icon"></div>
             <div class="flex justify-between items-center mb-6 text-sm sm:text-base">
@@ -142,58 +146,45 @@
                 <div class="bg-blue-100 px-3 sm:px-4 py-2 rounded-full font-bold text-blue-700">Điểm: <span id="currentScore">0</span></div>
             </div>
             <div class="text-center mb-8">
-                <div id="questionText" class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 bg-gray-50 p-4 sm:p-6 md:p-8 rounded-3xl border-2 border-dashed border-green-200 min-h-[120px] flex items-center justify-center">
-                </div>
+                <div id="questionText" class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 bg-gray-50 p-4 sm:p-6 md:p-8 rounded-3xl border-2 border-dashed border-green-200 min-h-[120px] flex items-center justify-center"></div>
             </div>
             <div id="answersGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
         </div>
 
-        <!-- Màn Hình Kết Quả -->
         <div id="result-screen" class="card-game p-8 text-center hidden">
             <h2 class="text-4xl font-bold text-yellow-600 mb-2">HOÀN THÀNH! 🎉</h2>
-            <div id="honoredName" class="text-2xl font-bold text-green-700 mb-6"></div>
+            <div id="honoredName" class="text-2xl font-bold text-green-700 mb-4"></div>
             <div class="bg-yellow-50 rounded-3xl p-6 mb-6 border-2 border-yellow-200">
                 <div class="text-6xl font-black text-red-500 mb-2"><span id="finalScore">0</span></div>
                 <div class="text-gray-600 font-bold text-xl">Số câu đúng: <span id="correctCount">0</span>/20</div>
             </div>
-            <p id="rankMessage" class="text-green-600 font-bold text-xl sm:text-2xl italic mb-8"></p>
             
+            <p id="rankMessage" class="text-green-600 font-bold text-xl italic mb-8"></p>
             <div class="flex flex-col sm:flex-row justify-center items-center gap-4">
-                <button onclick="window.location.reload()" class="w-full sm:w-auto bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-full text-xl shadow-lg btn-answer">
-                    CHƠI LẠI 🔄
-                </button>
-                <button onclick="showLeaderboard()" class="w-full sm:w-auto bg-yellow-400 hover:bg-yellow-500 text-yellow-900 font-bold py-3 px-8 rounded-full text-xl shadow-lg btn-answer">
-                    XẾP HẠNG 🏆
-                </button>
+                <button onclick="window.location.reload()" class="w-full sm:w-auto bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-full text-xl shadow-lg btn-answer">CHƠI LẠI 🔄</button>
+                <button onclick="showLeaderboard()" class="w-full sm:w-auto bg-yellow-400 hover:bg-yellow-500 text-yellow-900 font-bold py-3 px-8 rounded-full text-xl shadow-lg btn-answer">XẾP HẠNG 🏆</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal Bảng Xếp Hạng -->
     <div id="leaderboard-modal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center hidden">
         <div class="card-game p-6 w-[90%] max-w-md max-h-[85vh] flex flex-col relative bg-white">
             <button onclick="hideLeaderboard()" class="absolute top-2 right-4 text-gray-400 hover:text-gray-600 text-4xl leading-none font-light">&times;</button>
             <h2 class="text-2xl font-bold text-yellow-600 mb-4 text-center mt-2">🏆 BẢNG XẾP HẠNG 🏆</h2>
-            
             <div id="leaderboard-list" class="flex-1 overflow-y-auto pr-2 space-y-3 custom-scrollbar">
                 <div class="text-center text-gray-500 py-6 font-semibold animate-pulse">Đang tải dữ liệu...</div>
             </div>
-            
-            <button onclick="hideLeaderboard()" class="mt-4 w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 rounded-full text-lg btn-answer">
-                Đóng
-            </button>
+            <button onclick="hideLeaderboard()" class="mt-4 w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 rounded-full text-lg btn-answer">Đóng</button>
         </div>
     </div>
 
-    <!-- Script Game & Firebase Module -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // === CẤU HÌNH FIREBASE ===
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'math-game-app';
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'math-game-pro-100';
         let app, auth, db;
         let currentUser = null;
         let leaderboardData = [];
@@ -202,51 +193,32 @@
             app = initializeApp(firebaseConfig);
             auth = getAuth(app);
             db = getFirestore(app);
-        } catch (e) {
-            console.error("Firebase không thể khởi tạo:", e);
-        }
+        } catch (e) { console.error("Firebase error:", e); }
 
-        // Xác thực người dùng
         if (auth) {
             const initAuth = async () => {
-                try {
-                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                        await signInWithCustomToken(auth, __initial_auth_token);
-                    } else {
-                        await signInAnonymously(auth);
-                    }
-                } catch (error) {
-                    console.error("Lỗi xác thực:", error);
-                }
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else { await signInAnonymously(auth); }
             };
             initAuth();
-
             onAuthStateChanged(auth, (user) => {
                 currentUser = user;
                 if (user) listenToLeaderboard();
             });
         }
 
-        // Lắng nghe dữ liệu BXH theo thời gian thực
         function listenToLeaderboard() {
             if (!currentUser || !db) return;
             const leaderboardRef = collection(db, 'artifacts', appId, 'public', 'data', 'math_leaderboard');
             onSnapshot(leaderboardRef, (snapshot) => {
                 leaderboardData = [];
                 snapshot.forEach(doc => leaderboardData.push(doc.data()));
-                
-                // Sắp xếp: Điểm giảm dần -> Thời gian tăng dần
-                leaderboardData.sort((a, b) => {
-                    if (b.score !== a.score) return b.score - a.score;
-                    return (a.time || 0) - (b.time || 0);
-                });
+                leaderboardData.sort((a, b) => (b.score - a.score) || ((a.time || 0) - (b.time || 0)));
                 updateLeaderboardUI();
-            }, (error) => {
-                console.error("Lỗi đọc dữ liệu:", error);
-            });
+            }, (error) => console.error(error));
         }
 
-        // Lưu điểm lên BXH
         async function saveScore(name, score, time) {
             if (!currentUser || !db) return;
             try {
@@ -258,108 +230,106 @@
                     userId: currentUser.uid,
                     timestamp: serverTimestamp()
                 });
-            } catch (error) {
-                console.error("Lỗi lưu điểm:", error);
-            }
+            } catch (error) { console.error(error); }
         }
 
-        // Cập nhật giao diện BXH
         function updateLeaderboardUI() {
             const listEl = document.getElementById('leaderboard-list');
             if (!listEl) return;
-            
             if (leaderboardData.length === 0) {
-                listEl.innerHTML = '<div class="text-center text-gray-500 py-6">Chưa có ai trong bảng xếp hạng.<br>Bé hãy là người đầu tiên nhé! 🚀</div>';
+                listEl.innerHTML = '<div class="text-center text-gray-500 py-6">Chưa có dữ liệu.</div>';
                 return;
             }
-
             listEl.innerHTML = '';
-            // Chỉ lấy top 50 người
             leaderboardData.slice(0, 50).forEach((data, index) => {
-                let rankStyle = "text-gray-600 bg-gray-100";
-                let rankIcon = `#${index + 1}`;
-                if (index === 0) { rankStyle = "text-yellow-600 bg-yellow-100 text-xl border border-yellow-300"; rankIcon = "🥇"; }
-                else if (index === 1) { rankStyle = "text-gray-500 bg-gray-200 text-xl border border-gray-300"; rankIcon = "🥈"; }
-                else if (index === 2) { rankStyle = "text-orange-600 bg-orange-100 text-xl border border-orange-300"; rankIcon = "🥉"; }
-
                 const mins = Math.floor((data.time || 0) / 60).toString().padStart(2, '0');
                 const secs = ((data.time || 0) % 60).toString().padStart(2, '0');
-                const timeStr = `${mins}:${secs}`;
-                const safeName = (data.name || "Ẩn danh").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-
-                const itemHtml = `
-                    <div class="flex justify-between items-center bg-green-50/70 p-3 rounded-2xl border border-green-100 hover:bg-green-100 transition-colors">
-                        <div class="flex items-center gap-3 overflow-hidden">
-                            <span class="font-black w-10 h-10 flex items-center justify-center rounded-full ${rankStyle}">${rankIcon}</span>
-                            <span class="font-bold text-green-800 text-base sm:text-lg truncate max-w-[120px] sm:max-w-[150px]" title="${safeName}">${safeName}</span>
+                const safeName = (data.name || "Ẩn danh").replace(/</g, "&lt;");
+                listEl.innerHTML += `
+                    <div class="flex justify-between items-center bg-green-50 p-3 rounded-2xl border border-green-100">
+                        <div class="flex items-center gap-3">
+                            <span class="font-black w-8 text-center text-green-600">${index + 1}</span>
+                            <span class="font-bold text-green-800 truncate max-w-[150px]">${safeName}</span>
                         </div>
-                        <div class="text-right whitespace-nowrap ml-2">
-                            <div class="font-bold text-red-500 text-lg">${data.score} đ</div>
-                            <div class="text-xs text-gray-600 font-semibold">⏱️ ${timeStr}</div>
+                        <div class="text-right">
+                            <div class="font-bold text-red-500">${data.score} đ</div>
+                            <div class="text-xs text-gray-500">⏱️ ${mins}:${secs}</div>
                         </div>
                     </div>
                 `;
-                listEl.innerHTML += itemHtml;
             });
         }
 
-        // Tích hợp phơi bày hàm ra window để HTML dùng
-        window.showLeaderboard = () => {
-            document.getElementById('leaderboard-modal').classList.remove('hidden');
-        };
-        window.hideLeaderboard = () => {
-            document.getElementById('leaderboard-modal').classList.add('hidden');
-        };
+        window.showLeaderboard = () => document.getElementById('leaderboard-modal').classList.remove('hidden');
+        window.hideLeaderboard = () => document.getElementById('leaderboard-modal').classList.add('hidden');
 
-        // === LOGIC GAME CŨ CỦA BẠN ===
-        function generate200SingleOpQuestions() {
+        function generateHard100Questions() {
             const db = { basic: [], word: [] };
-            for (let i = 0; i < 30; i++) {
-                let a = Math.floor(Math.random() * 80) + 1;
-                let b = Math.floor(Math.random() * (100 - a)) + 1;
-                db.basic.push({ q: `${a} + ${b} = ?`, a: [(a + b).toString(), (a + b + 2).toString(), (a + b - 1).toString(), (a + b + 5).toString()] });
+            
+            // Phép Cộng (Phạm vi 100)
+            for (let i = 0; i < 40; i++) {
+                let a = Math.floor(Math.random() * 70) + 15; 
+                let b = Math.floor(Math.random() * (100 - a - 5)) + 10;
+                let ans = a + b;
+                db.basic.push({ 
+                    q: `${a} + ${b} = ?`, 
+                    a: [ans.toString(), (ans + 1).toString(), (ans - 1).toString(), (ans + 10).toString()] 
+                });
             }
-            for (let i = 0; i < 30; i++) {
-                let a = Math.floor(Math.random() * 90) + 10;
-                let b = Math.floor(Math.random() * a) + 1;
-                db.basic.push({ q: `${a} - ${b} = ?`, a: [(a - b).toString(), (a - b + 1).toString(), (a - b - 2).toString(), (a - b + 3).toString()] });
+            
+            // Phép Trừ (Phạm vi 100)
+            for (let i = 0; i < 40; i++) {
+                let a = Math.floor(Math.random() * 80) + 20; 
+                let b = Math.floor(Math.random() * (a - 5)) + 5;
+                let ans = a - b;
+                db.basic.push({ 
+                    q: `${a} - ${b} = ?`, 
+                    a: [ans.toString(), (ans + 1).toString(), (ans - 1).toString(), (ans + 2).toString()] 
+                });
             }
-            for (let i = 0; i < 30; i++) {
-                let val = Math.floor(Math.random() * 10) + 1;
-                let type = i % 2 === 0;
-                let qText = type ? `2 × ${val} = ?` : `${val} × 2 = ?`;
-                db.basic.push({ q: qText, a: [(2 * val).toString(), (2 * val + 2).toString(), (2 * val - 2).toString(), "15"] });
+            
+            // Phép Nhân 2 & 5
+            for (let i = 0; i < 20; i++) {
+                let val = Math.floor(Math.random() * 45) + 6;
+                let ans = val * 2;
+                db.basic.push({ q: `2 × ${val} = ?`, a: [ans.toString(), (ans + 2).toString(), (ans - 2).toString(), (ans + 10).toString()] });
             }
-            for (let i = 0; i < 30; i++) {
-                let val = Math.floor(Math.random() * 10) + 1;
-                let type = i % 2 === 0;
-                let qText = type ? `5 × ${val} = ?` : `${val} × 5 = ?`;
-                db.basic.push({ q: qText, a: [(5 * val).toString(), (5 * val + 5).toString(), (5 * val - 5).toString(), "20"] });
+            for (let i = 0; i < 20; i++) {
+                let val = Math.floor(Math.random() * 17) + 4;
+                let ans = val * 5;
+                db.basic.push({ q: `5 × ${val} = ?`, a: [ans.toString(), (ans + 5).toString(), (ans - 5).toString(), (ans + 10).toString()] });
             }
+
+            // Bài toán lời văn
             const names = ["Lan", "An", "Bình", "Hoa", "Minh", "Tuấn", "Linh", "Nam", "Mai", "Hùng"];
-            const items = ["viên kẹo", "quyển vở", "viên bi", "bông hoa", "quả cam", "con tem"];
+            const items = ["viên bi", "quyển vở", "con tem", "bông hoa", "quả cam"];
+            
             for (let i = 0; i < 80; i++) {
                 let n = names[i % names.length];
                 let it = items[i % items.length];
                 let type = i % 4;
-                if (type === 0) {
-                    let a = Math.floor(Math.random()*40)+10, b = Math.floor(Math.random()*30)+5;
-                    db.word.push({ q: `${n} có ${a} ${it}, mẹ cho thêm ${b} ${it}. Hỏi ${n} có bao nhiêu ${it}?`, a: [(a+b).toString(), (a+b+2).toString(), (a+b-1).toString(), (a+b+5).toString()] });
-                } else if (type === 1) {
-                    let a = Math.floor(Math.random()*50)+40, b = Math.floor(Math.random()*30)+5;
-                    db.word.push({ q: `${n} có ${a} ${it}, ${n} cho bạn ${b} ${it}. Hỏi ${n} còn lại mấy ${it}?`, a: [(a-b).toString(), (a-b+1).toString(), (a-b-2).toString(), (a-b+5).toString()] });
-                } else if (type === 2) {
-                    let a = Math.floor(Math.random()*9)+2;
-                    db.word.push({ q: `Có ${a} bạn, mỗi bạn có 2 ${it}. Hỏi tất cả có bao nhiêu ${it}?`, a: [(a*2).toString(), (a*2+2).toString(), (a*2-1).toString(), "10"] });
-                } else {
-                    let a = Math.floor(Math.random()*8)+2;
-                    db.word.push({ q: `Có ${a} hộp, mỗi hộp có 5 ${it}. Hỏi tất cả có bao nhiêu ${it}?`, a: [(a*5).toString(), (a*5+5).toString(), (a*5-5).toString(), "25"] });
+                if (type === 0) { // Cộng
+                    let a = Math.floor(Math.random()*45)+10, b = Math.floor(Math.random()*40)+10;
+                    let ans = a + b;
+                    db.word.push({ q: `${n} có ${a} ${it}, bạn cho thêm ${b} ${it}. Hỏi ${n} có bao nhiêu ${it}?`, a: [ans.toString(), (ans+1).toString(), (ans-1).toString(), (ans+10).toString()] });
+                } else if (type === 1) { // Trừ
+                    let a = Math.floor(Math.random()*50)+50, b = Math.floor(Math.random()*(a-10))+5;
+                    let ans = a - b;
+                    db.word.push({ q: `${n} có ${a} ${it}, ${n} dùng mất ${b} ${it}. Hỏi ${n} còn lại bao nhiêu?`, a: [ans.toString(), (ans+1).toString(), (ans-1).toString(), (ans+2).toString()] });
+                } else if (type === 2) { // Nhân 2
+                    let a = Math.floor(Math.random()*30)+10;
+                    let ans = a * 2;
+                    db.word.push({ q: `Có ${a} túi, mỗi túi có 2 ${it}. Hỏi tất cả có bao nhiêu ${it}?`, a: [ans.toString(), (ans+2).toString(), (ans-2).toString(), (ans+10).toString()] });
+                } else { // Nhân 5
+                    let a = Math.floor(Math.random()*15)+3;
+                    let ans = a * 5;
+                    db.word.push({ q: `Mỗi hộp có 5 ${it}, bé có ${a} hộp. Hỏi tất cả có bao nhiêu ${it}?`, a: [ans.toString(), (ans+5).toString(), (ans-5).toString(), (ans+10).toString()] });
                 }
             }
             return db;
         }
 
-        const KHO_DE = generate200SingleOpQuestions();
+        const KHO_DE = generateHard100Questions();
         let currentQuestions = [];
         let currentIndex = 0;
         let score = 0;
@@ -368,34 +338,20 @@
         let totalSeconds = 0;
         let canAnswer = true;
 
-        function createStars() {
-            const container = document.getElementById('stars-container');
-            if(!container) return;
-            for (let i = 0; i < 20; i++) {
-                const star = document.createElement('div');
-                star.className = 'star'; star.innerHTML = '⭐';
-                star.style.left = Math.random() * 100 + 'vw';
-                star.style.animationDuration = (Math.random() * 3 + 3) + 's';
-                star.style.animationDelay = Math.random() * 5 + 's';
-                container.appendChild(star);
-            }
-        }
-
-        function shuffle(array) { return array.sort(() => Math.random() - 0.5); }
-
         window.startGame = function() {
             const name = document.getElementById('studentName').value.trim();
-            if (!name) {
-                alert("Vui lòng nhập tên của bé để bắt đầu!");
-                return;
-            }
+            if (!name) { alert("Nhập tên nhé bé!"); return; }
+            
+            // Kích hoạt dòng cổ vũ xuyên suốt
+            const globalEnc = document.getElementById('globalEncouragement');
+            globalEnc.classList.remove('hidden');
+            document.getElementById('globalEncouragementText').innerText = `Cố lên nhé ${name} 💪🌟`;
+
             document.getElementById('welcome-screen').classList.add('hidden');
             document.getElementById('game-screen').classList.remove('hidden');
-            
             let q1 = shuffle([...KHO_DE.basic]).slice(0, 12);
             let q2 = shuffle([...KHO_DE.word]).slice(0, 8);
             currentQuestions = shuffle([...q1, ...q2]);
-            
             startTimer();
             showQuestion();
         };
@@ -406,13 +362,12 @@
             const qData = currentQuestions[currentIndex];
             document.getElementById('currentQuestionNum').innerText = currentIndex + 1;
             document.getElementById('questionText').innerText = qData.q;
-            
-            const answersGrid = document.getElementById('answersGrid');
-            answersGrid.innerHTML = '';
+            const grid = document.getElementById('answersGrid');
+            grid.innerHTML = '';
             const correct = qData.a[0];
             shuffle([...qData.a]).forEach(ans => {
                 const btn = document.createElement('button');
-                btn.className = "bg-white text-green-700 font-bold py-4 px-4 sm:px-6 rounded-2xl text-xl shadow border-2 border-green-200 btn-answer w-full";
+                btn.className = "bg-white text-green-700 font-bold py-4 rounded-2xl text-xl shadow border-2 border-green-200 btn-answer w-full";
                 btn.innerText = ans;
                 btn.onclick = () => {
                     if (!canAnswer) return;
@@ -427,12 +382,12 @@
                         btn.classList.add('wrong-ans');
                         document.getElementById('feedback-icon').innerHTML = "😢";
                         try { document.getElementById('wrongSound').play(); } catch(e){}
-                        setTimeout(() => next(), 2500);
+                        setTimeout(() => next(), 2000);
                     }
                     document.getElementById('feedback-icon').classList.add('show');
                     document.getElementById('currentScore').innerText = score;
                 };
-                answersGrid.appendChild(btn);
+                grid.appendChild(btn);
             });
         }
 
@@ -454,21 +409,23 @@
             clearInterval(timerInterval);
             document.getElementById('game-screen').classList.add('hidden');
             document.getElementById('result-screen').classList.remove('hidden');
-            
-            const studentName = document.getElementById('studentName').value.trim();
-            document.getElementById('honoredName').innerText = "Học sinh: " + studentName;
+            const name = document.getElementById('studentName').value.trim();
+            document.getElementById('honoredName').innerText = "Học sinh: " + name;
             document.getElementById('finalScore').innerText = score;
             document.getElementById('correctCount').innerText = correctCount;
-            
-            let msg = score >= 9 ? "Xuất sắc! Bé là thiên tài toán học! 🏆" : score >= 7 ? "Giỏi lắm! Phát huy bé nhé! 🌟" : "Bé hãy cố gắng luyện tập thêm nhé! ❤️";
-            document.getElementById('rankMessage').innerText = msg;
-
-            // Ghi điểm số lên Firebase ngay khi kết thúc game
-            saveScore(studentName, score, totalSeconds);
+            saveScore(name, score, totalSeconds);
         }
 
-        // Khởi tạo đồ hoạ
-        createStars();
+        function shuffle(a) { return a.sort(() => Math.random() - 0.5); }
+        
+        const container = document.getElementById('stars-container');
+        for (let i = 0; i < 20; i++) {
+            const s = document.createElement('div');
+            s.className = 'star'; s.innerHTML = '⭐';
+            s.style.left = Math.random() * 100 + 'vw';
+            s.style.animationDuration = (Math.random() * 3 + 3) + 's';
+            container.appendChild(s);
+        }
     </script>
 </body>
 </html>
