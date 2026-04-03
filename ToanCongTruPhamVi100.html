@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bé Học Toán - Cộng Trừ Phạm Vi 100 & Phép Nhân 2, 5</title>
+    <title>Bé Học Toán - Phép Tính Đơn</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -61,27 +61,15 @@
             border-bottom-color: #dc2626 !important;
         }
 
-        .pulse {
-            animation: pulse-animation 2s infinite;
-        }
-
-        @keyframes pulse-animation {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-
-        /* Hiệu ứng hiện Icon phản hồi - Đã điều chỉnh kích thước nhỏ lại */
         #feedback-icon {
             position: absolute;
-            top: 20%; /* Đưa lên cao hơn một chút để không che đáp án */
+            top: 20%;
             left: 50%;
             transform: translate(-50%, -50%) scale(0);
-            font-size: 60px; /* Giảm từ 100px xuống 60px */
+            font-size: 60px;
             z-index: 50;
             transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             pointer-events: none;
-            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
         }
 
         #feedback-icon.show {
@@ -95,7 +83,6 @@
 <body class="min-h-screen flex items-center justify-center p-4">
     <div id="stars-container"></div>
 
-    <!-- Âm thanh -->
     <audio id="bgMusic" loop>
         <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
     </audio>
@@ -107,131 +94,108 @@
     </audio>
 
     <div class="max-w-xl w-full z-10">
-        <!-- Màn hình chào mừng -->
         <div id="welcome-screen" class="card-game p-8 text-center">
-            <h1 class="text-4xl font-bold text-green-700 mb-6">🌟 BÉ HỌC TOÁN 🌟</h1>
-            <p class="text-lg text-gray-600 mb-6 font-semibold">Cộng Trừ 100 - Phép Nhân Với 2 và 5</p>
+            <h1 class="text-4xl font-bold text-green-700 mb-4">🌟 BÉ HỌC TOÁN 🌟</h1>
+            <p class="text-lg text-gray-600 mb-6 font-semibold">Phép tính đơn: Cộng, Trừ, Nhân 2 & 5<br></p>
             
             <div class="mb-6">
-                <input type="text" id="studentName" placeholder="Nhập họ và tên của bé..." 
+                <input type="text" id="studentName" placeholder="Nhập tên của bé..." 
                     class="w-full p-4 rounded-2xl border-2 border-green-300 focus:outline-none focus:border-green-500 text-center text-xl">
             </div>
 
-            <button onclick="startGame()" class="pulse bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-10 rounded-full text-2xl shadow-lg transition btn-answer">
+            <button onclick="startGame()" class="bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-10 rounded-full text-2xl shadow-lg transition btn-answer">
                 BẮT ĐẦU CHƠI 🚀
             </button>
-            <p class="mt-4 text-sm text-gray-500 italic"> Được tạo bởi Cô Nguyên - THCS Tam Giang</p>
+            <p class="mt-4 text-sm text-gray-500 italic">Mỗi câu chỉ 1 phép tính duy nhất</p>
         </div>
 
-        <!-- Màn hình chơi game -->
         <div id="game-screen" class="card-game p-6 hidden">
-            <!-- Icon phản hồi đúng/sai -->
             <div id="feedback-icon"></div>
-
             <div class="flex justify-between items-center mb-6">
-                <div class="bg-green-100 px-4 py-2 rounded-full font-bold text-green-700">
-                    Câu: <span id="currentQuestionNum">1</span>/20
-                </div>
-                <div class="bg-yellow-100 px-4 py-2 rounded-full font-bold text-yellow-700">
-                    ⏱️ <span id="timer">00:00</span>
-                </div>
-                <div class="bg-blue-100 px-4 py-2 rounded-full font-bold text-blue-700">
-                    Điểm: <span id="currentScore">0</span>
-                </div>
+                <div class="bg-green-100 px-4 py-2 rounded-full font-bold text-green-700">Câu: <span id="currentQuestionNum">1</span>/20</div>
+                <div class="bg-yellow-100 px-4 py-2 rounded-full font-bold text-yellow-700">⏱️ <span id="timer">00:00</span></div>
+                <div class="bg-blue-100 px-4 py-2 rounded-full font-bold text-blue-700">Điểm: <span id="currentScore">0</span></div>
             </div>
-
             <div class="text-center mb-8">
-                <div id="questionText" class="text-3xl md:text-4xl font-bold text-gray-800 bg-gray-50 p-8 rounded-3xl border-2 border-dashed border-green-200">
-                    Đang tải câu hỏi...
+                <div id="questionText" class="text-2xl md:text-3xl font-bold text-gray-800 bg-gray-50 p-6 md:p-8 rounded-3xl border-2 border-dashed border-green-200 min-h-[150px] flex items-center justify-center">
                 </div>
             </div>
-
-            <div id="answersGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- Đáp án render tại đây -->
-            </div>
-            
-            <div class="mt-6 text-center text-gray-400 text-sm">
-                Cố lên nhé <span id="displayName" class="font-bold text-green-600"></span>! 💪
-            </div>
+            <div id="answersGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
         </div>
 
-        <!-- Màn hình kết thúc -->
         <div id="result-screen" class="card-game p-8 text-center hidden">
-            <h2 class="text-4xl font-bold text-yellow-600 mb-2">CHÚC MỪNG 🎉</h2>
-            <div id="honoredName" class="text-2xl font-bold text-green-700 mb-6 underline">Học sinh: </div>
-            
+            <h2 class="text-4xl font-bold text-yellow-600 mb-2">HOÀN THÀNH! 🎉</h2>
+            <div id="honoredName" class="text-2xl font-bold text-green-700 mb-6"></div>
             <div class="bg-yellow-50 rounded-3xl p-6 mb-6 border-2 border-yellow-200">
                 <div class="text-6xl font-black text-red-500 mb-2"><span id="finalScore">0</span></div>
                 <div class="text-gray-600 font-bold text-xl">Số câu đúng: <span id="correctCount">0</span>/20</div>
             </div>
-
-            <div class="text-lg text-gray-700 mb-8 space-y-2">
-                <p>Tổng thời gian: <span id="finalTime" class="font-bold">00:00</span></p>
-                <p id="rankMessage" class="text-green-600 font-bold text-2xl italic"></p>
-            </div>
-
+            <p id="rankMessage" class="text-green-600 font-bold text-2xl italic mb-8"></p>
             <button onclick="window.location.reload()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 px-10 rounded-full text-xl shadow-lg transition btn-answer">
-                CHƠI LẠI TỪ ĐẦU 🔄
+                CHƠI LẠI 🔄
             </button>
         </div>
     </div>
 
     <script>
-        // DỮ LIỆU CÂU HỎI
-        const KHO_DE = {
-            nhan_biet: [
-                { q: "25 + 14 = ?", a: ["39", "29", "41", "40"] },
-                { q: "78 − 23 = ?", a: ["55", "45", "65", "50"] },
-                { q: "36 + 22 = ?", a: ["58", "68", "56", "48"] },
-                { q: "90 − 40 = ?", a: ["50", "60", "40", "30"] },
-                { q: "7 × 2 = ?", a: ["14", "12", "16", "10"] },
-                { q: "5 × 6 = ?", a: ["30", "25", "35", "20"] },
-                { q: "18 + 21 = ?", a: ["39", "40", "41", "38"] },
-                { q: "64 − 32 = ?", a: ["32", "34", "30", "28"] },
-                { q: "9 × 2 = ?", a: ["18", "16", "20", "14"] },
-                { q: "5 × 8 = ?", a: ["40", "35", "45", "50"] },
-                { q: "45 + 30 = ?", a: ["75", "65", "85", "70"] },
-                { q: "70 − 25 = ?", a: ["45", "35", "55", "50"] },
-                { q: "12 × 2 = ?", a: ["24", "22", "20", "26"] },
-                { q: "5 × 9 = ?", a: ["45", "35", "40", "50"] },
-                { q: "33 + 44 = ?", a: ["77", "87", "67", "75"] },
-                { q: "88 − 22 = ?", a: ["66", "56", "64", "72"] },
-                { q: "6 × 2 = ?", a: ["12", "10", "14", "8"] },
-                { q: "5 × 4 = ?", a: ["20", "15", "25", "10"] },
-                { q: "27 + 13 = ?", a: ["40", "30", "50", "45"] },
-                { q: "100 − 60 = ?", a: ["40", "30", "50", "60"] }
-            ],
-            thong_hieu: [
-                { q: "25 + 30 = ?", a: ["55", "50", "60", "65"] },
-                { q: "72 − 20 = ?", a: ["52", "42", "62", "50"] },
-                { q: "15 + 15 = ?", a: ["30", "20", "25", "35"] },
-                { q: "12 + 18 = ?", a: ["30", "28", "32", "34"] },
-                { q: "90 − 45 = ?", a: ["45", "35", "50", "55"] },
-                { q: "60 − 25 = ?", a: ["35", "30", "40", "45"] },
-                { q: "48 − 28 = ?", a: ["20", "10", "15", "25"] },
-                { q: "72 − 32 = ?", a: ["40", "30", "35", "45"] },
-                { q: "49 + 11 = ?", a: ["60", "70", "50", "55"] },
-                { q: "80 − 20 = ?", a: ["60", "50", "70", "40"] },
-                { q: "60 + 20 = ?", a: ["80", "70", "90", "100"] },
-                { q: "95 − 15 = ?", a: ["80", "70", "85", "75"] },
-                { q: "5 × 7 = ?", a: ["35", "30", "40", "25"] },
-                { q: "10 × 2 = ?", a: ["20", "15", "25", "30"] },
-                { q: "5 × 10 = ?", a: ["50", "40", "60", "45"] }
-            ],
-            van_dung: [
-                { q: "An có 25 bi, thêm 15 bi. Hỏi An có tất cả?", a: ["40", "30", "35", "45"] },
-                { q: "Bình có 50 kẹo, cho bạn 20 kẹo. Còn lại?", a: ["30", "20", "40", "25"] },
-                { q: "Nhóm 5 bạn, mỗi bạn có 2 quyển sách. Có?", a: ["10", "7", "12", "15"] },
-                { q: "5 túi, mỗi túi có 8 quả táo. Có tất cả?", a: ["40", "30", "35", "45"] },
-                { q: "Lan có 30 bút, mua thêm 20 bút. Tổng là?", a: ["50", "40", "60", "70"] },
-                { q: "Một lớp có 6 nhóm, mỗi nhóm 5 bạn. Có?", a: ["30", "25", "35", "40"] },
-                { q: "Rổ có 5 hàng, mỗi hàng 6 quả cam. Có?", a: ["30", "25", "35", "40"] },
-                { q: "Mẹ mua 5 túi kẹo, mỗi túi 10 cái. Có?", a: ["50", "40", "45", "55"] },
-                { q: "Mỗi con gà có 2 chân. 8 con gà có?", a: ["16", "14", "18", "12"] },
-                { q: "Mỗi bàn có 5 bạn. 4 bàn có bao nhiêu bạn?", a: ["20", "15", "25", "10"] }
-            ]
-        };
+        function generate200SingleOpQuestions() {
+            const db = { basic: [], word: [] };
 
+            // 1. Phép tính đơn thuần (120 câu)
+            // Cộng (30 câu)
+            for (let i = 0; i < 30; i++) {
+                let a = Math.floor(Math.random() * 80) + 1;
+                let b = Math.floor(Math.random() * (100 - a)) + 1;
+                db.basic.push({ q: `${a} + ${b} = ?`, a: [(a + b).toString(), (a + b + 2).toString(), (a + b - 1).toString(), (a + b + 5).toString()] });
+            }
+            // Trừ (30 câu)
+            for (let i = 0; i < 30; i++) {
+                let a = Math.floor(Math.random() * 90) + 10;
+                let b = Math.floor(Math.random() * a) + 1;
+                db.basic.push({ q: `${a} - ${b} = ?`, a: [(a - b).toString(), (a - b + 1).toString(), (a - b - 2).toString(), (a - b + 3).toString()] });
+            }
+            // Nhân 2 (30 câu)
+            for (let i = 0; i < 30; i++) {
+                let val = Math.floor(Math.random() * 10) + 1;
+                let type = i % 2 === 0;
+                let qText = type ? `2 × ${val} = ?` : `${val} × 2 = ?`;
+                db.basic.push({ q: qText, a: [(2 * val).toString(), (2 * val + 2).toString(), (2 * val - 2).toString(), "15"] });
+            }
+            // Nhân 5 (30 câu)
+            for (let i = 0; i < 30; i++) {
+                let val = Math.floor(Math.random() * 10) + 1;
+                let type = i % 2 === 0;
+                let qText = type ? `5 × ${val} = ?` : `${val} × 5 = ?`;
+                db.basic.push({ q: qText, a: [(5 * val).toString(), (5 * val + 5).toString(), (5 * val - 5).toString(), "20"] });
+            }
+
+            // 2. Bài toán lời văn đơn giản (80 câu - mỗi câu 1 phép tính)
+            const names = ["Lan", "An", "Bình", "Hoa", "Minh", "Tuấn", "Linh", "Nam", "Mai", "Hùng"];
+            const items = ["viên kẹo", "quyển vở", "viên bi", "bông hoa", "quả cam", "con tem"];
+            
+            for (let i = 0; i < 80; i++) {
+                let n = names[i % names.length];
+                let it = items[i % items.length];
+                let type = i % 4;
+
+                if (type === 0) { // Cộng đơn
+                    let a = Math.floor(Math.random()*40)+10, b = Math.floor(Math.random()*30)+5;
+                    db.word.push({ q: `${n} có ${a} ${it}, mẹ cho thêm ${b} ${it}. Hỏi ${n} có bao nhiêu ${it}?`, a: [(a+b).toString(), (a+b+2).toString(), (a+b-1).toString(), (a+b+5).toString()] });
+                } else if (type === 1) { // Trừ đơn
+                    let a = Math.floor(Math.random()*50)+40, b = Math.floor(Math.random()*30)+5;
+                    db.word.push({ q: `${n} có ${a} ${it}, ${n} cho bạn ${b} ${it}. Hỏi ${n} còn lại mấy ${it}?`, a: [(a-b).toString(), (a-b+1).toString(), (a-b-2).toString(), (a-b+5).toString()] });
+                } else if (type === 2) { // Nhân 2 đơn
+                    let a = Math.floor(Math.random()*9)+2;
+                    db.word.push({ q: `Có ${a} bạn, mỗi bạn có 2 ${it}. Hỏi tất cả có bao nhiêu ${it}?`, a: [(a*2).toString(), (a*2+2).toString(), (a*2-1).toString(), "10"] });
+                } else { // Nhân 5 đơn
+                    let a = Math.floor(Math.random()*8)+2;
+                    db.word.push({ q: `Có ${a} hộp, mỗi hộp có 5 ${it}. Hỏi tất cả có bao nhiêu ${it}?`, a: [(a*5).toString(), (a*5+5).toString(), (a*5-5).toString(), "25"] });
+                }
+            }
+            return db;
+        }
+
+        const KHO_DE = generate200SingleOpQuestions();
         let currentQuestions = [];
         let currentIndex = 0;
         let score = 0;
@@ -244,8 +208,7 @@
             const container = document.getElementById('stars-container');
             for (let i = 0; i < 20; i++) {
                 const star = document.createElement('div');
-                star.className = 'star';
-                star.innerHTML = '⭐';
+                star.className = 'star'; star.innerHTML = '⭐';
                 star.style.left = Math.random() * 100 + 'vw';
                 star.style.animationDuration = (Math.random() * 3 + 3) + 's';
                 star.style.animationDelay = Math.random() * 5 + 's';
@@ -253,124 +216,65 @@
             }
         }
 
-        function shuffle(array) {
-            return array.sort(() => Math.random() - 0.5);
-        }
-
-        function prepareQuestions() {
-            let q1 = shuffle([...KHO_DE.nhan_biet]).slice(0, 6);
-            let q2 = shuffle([...KHO_DE.thong_hieu]).slice(0, 6);
-            let q3 = shuffle([...KHO_DE.van_dung]).slice(0, 8);
-            return shuffle([...q1, ...q2, ...q3]);
-        }
+        function shuffle(array) { return array.sort(() => Math.random() - 0.5); }
 
         function startGame() {
             const name = document.getElementById('studentName').value.trim();
-            if (!name) {
-                const errorBox = document.createElement('div');
-                errorBox.innerText = "Bé ơi, hãy nhập tên của mình vào nhé!";
-                errorBox.className = "fixed top-10 left-1/2 -translate-x-1/2 bg-red-500 text-white px-6 py-3 rounded-full shadow-lg z-50 animate-bounce";
-                document.body.appendChild(errorBox);
-                setTimeout(() => errorBox.remove(), 3000);
-                return;
-            }
-
-            document.getElementById('displayName').innerText = name;
+            if (!name) return;
             document.getElementById('welcome-screen').classList.add('hidden');
             document.getElementById('game-screen').classList.remove('hidden');
-
-            const bgMusic = document.getElementById('bgMusic');
-            bgMusic.volume = 0.2;
-            bgMusic.play().catch(() => {});
-
-            currentQuestions = prepareQuestions();
-            currentIndex = 0;
-            score = 0;
-            correctCount = 0;
-            totalSeconds = 0;
-            canAnswer = true;
-
+            
+            // Mix 20 questions
+            let q1 = shuffle([...KHO_DE.basic]).slice(0, 12);
+            let q2 = shuffle([...KHO_DE.word]).slice(0, 8);
+            currentQuestions = shuffle([...q1, ...q2]);
+            
             startTimer();
             showQuestion();
         }
 
         function showQuestion() {
             canAnswer = true;
-            // Ẩn icon phản hồi
-            const feedback = document.getElementById('feedback-icon');
-            feedback.classList.remove('show');
-            
+            document.getElementById('feedback-icon').classList.remove('show');
             const qData = currentQuestions[currentIndex];
             document.getElementById('currentQuestionNum').innerText = currentIndex + 1;
             document.getElementById('questionText').innerText = qData.q;
             
             const answersGrid = document.getElementById('answersGrid');
             answersGrid.innerHTML = '';
-
-            const correctAnswer = qData.a[0];
-            const shuffledAnswers = shuffle([...qData.a]);
-
-            shuffledAnswers.forEach(ans => {
+            const correct = qData.a[0];
+            shuffle([...qData.a]).forEach(ans => {
                 const btn = document.createElement('button');
                 btn.className = "bg-white text-green-700 font-bold py-4 px-6 rounded-2xl text-xl shadow border-2 border-green-200 btn-answer";
                 btn.innerText = ans;
-                btn.onclick = () => checkAnswer(btn, ans, correctAnswer);
+                btn.onclick = () => {
+                    if (!canAnswer) return;
+                    canAnswer = false;
+                    if (ans === correct) {
+                        correctCount++; score = (correctCount * 0.5).toFixed(1);
+                        btn.classList.add('correct-ans');
+                        document.getElementById('feedback-icon').innerHTML = "😊";
+                        document.getElementById('correctSound').play();
+                        setTimeout(() => next(), 800);
+                    } else {
+                        btn.classList.add('wrong-ans');
+                        document.getElementById('feedback-icon').innerHTML = "😢";
+                        document.getElementById('wrongSound').play();
+                        setTimeout(() => next(), 2500);
+                    }
+                    document.getElementById('feedback-icon').classList.add('show');
+                    document.getElementById('currentScore').innerText = score;
+                };
                 answersGrid.appendChild(btn);
             });
         }
 
-        function checkAnswer(btn, selected, correct) {
-            if (!canAnswer) return;
-            canAnswer = false;
-
-            const feedback = document.getElementById('feedback-icon');
-            const buttons = document.querySelectorAll('.btn-answer');
-            buttons.forEach(b => b.classList.add('disabled'));
-
-            let delayTime = 0;
-
-            if (selected === correct) {
-                // ĐÚNG
-                correctCount++;
-                score = (correctCount * 0.5).toFixed(1);
-                btn.classList.add('correct-ans');
-                document.getElementById('correctSound').play();
-                document.getElementById('currentScore').innerText = score;
-                
-                // Hiện mặt cười cỡ nhỏ
-                feedback.innerHTML = "😊";
-                feedback.classList.add('show');
-                
-                delayTime = 800; // Đúng thì chuyển nhanh sau 0.8s
-            } else {
-                // SAI
-                btn.classList.add('wrong-ans');
-                buttons.forEach(b => {
-                    if (b.innerText === correct) {
-                        b.classList.add('correct-ans');
-                    }
-                });
-                document.getElementById('wrongSound').play();
-                
-                // Hiện mặt buồn cỡ nhỏ
-                feedback.innerHTML = "😢";
-                feedback.classList.add('show');
-                
-                delayTime = 3000; // Sai thì dừng 3 giây để xem đáp án
-            }
-
-            setTimeout(() => {
-                currentIndex++;
-                if (currentIndex < 20) {
-                    showQuestion();
-                } else {
-                    endGame();
-                }
-            }, delayTime);
+        function next() {
+            currentIndex++;
+            if (currentIndex < 20) showQuestion(); else endGame();
         }
 
         function startTimer() {
-            if (timerInterval) clearInterval(timerInterval);
             timerInterval = setInterval(() => {
                 totalSeconds++;
                 const mins = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
@@ -381,21 +285,12 @@
 
         function endGame() {
             clearInterval(timerInterval);
-            document.getElementById('bgMusic').pause();
-            
             document.getElementById('game-screen').classList.add('hidden');
             document.getElementById('result-screen').classList.remove('hidden');
-
             document.getElementById('honoredName').innerText = "Học sinh: " + document.getElementById('studentName').value;
             document.getElementById('finalScore').innerText = score;
             document.getElementById('correctCount').innerText = correctCount;
-            document.getElementById('finalTime').innerText = document.getElementById('timer').innerText;
-
-            let msg = "";
-            if (score >= 9) msg = "Xuất sắc quá! Bé là thiên tài toán học! 🏆";
-            else if (score >= 7) msg = "Giỏi lắm! Phát huy bé nhé! 🌟";
-            else if (score >= 5) msg = "Khá lắm! Cố gắng thêm chút nữa nhé! 💪";
-            else msg = "Bé hãy luyện tập thêm để giỏi hơn nhé! ❤️";
+            let msg = score >= 9 ? "Xuất sắc! Bé là thiên tài toán học! 🏆" : score >= 7 ? "Giỏi lắm! Phát huy bé nhé! 🌟" : "Bé hãy cố gắng luyện tập thêm nhé! ❤️";
             document.getElementById('rankMessage').innerText = msg;
         }
 
