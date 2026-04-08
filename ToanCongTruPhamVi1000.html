@@ -1,0 +1,509 @@
+<!doctype html>
+<html lang="vi" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
+  <style>
+* { font-family: 'Baloo 2', cursive; }
+html, body { height: 100%; margin: 0; }
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+@keyframes pop { 0%{transform:scale(0.5);opacity:0} 60%{transform:scale(1.15)} 100%{transform:scale(1);opacity:1} }
+@keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(8px)} 60%{transform:translateX(-5px)} 80%{transform:translateX(5px)} }
+@keyframes confetti { 0%{transform:translateY(0) rotate(0);opacity:1} 100%{transform:translateY(-200px) rotate(720deg);opacity:0} }
+@keyframes slideUp { 0%{transform:translateY(40px);opacity:0} 100%{transform:translateY(0);opacity:1} }
+@keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.08)} }
+@keyframes starBurst { 0%{transform:scale(0) rotate(0);opacity:1} 50%{transform:scale(1.5) rotate(180deg);opacity:0.8} 100%{transform:scale(0) rotate(360deg);opacity:0} }
+.float { animation: float 3s ease-in-out infinite; }
+.pop { animation: pop 0.4s ease-out; }
+.shake { animation: shake 0.5s ease; }
+.slide-up { animation: slideUp 0.5s ease-out; }
+.pulse-btn { animation: pulse 1.5s ease-in-out infinite; }
+.confetti-piece { position:absolute; animation: confetti 1.5s ease-out forwards; }
+.star-burst { animation: starBurst 0.8s ease-out forwards; position:absolute; pointer-events:none; }
+.option-btn { transition: all 0.15s ease; }
+.option-btn:hover { transform: scale(1.04); }
+.option-btn:active { transform: scale(0.97); }
+.progress-fill { transition: width 0.5s ease; }
+.drag-item { cursor: grab; user-select: none; touch-action: none; }
+.drag-item.dragging { opacity: 0.6; cursor: grabbing; }
+.drop-zone { transition: all 0.2s; }
+.drop-zone.drag-over { transform: scale(1.05); box-shadow: 0 0 0 3px #fbbf24; }
+</style>
+  <style>body { box-sizing: border-box; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full overflow-auto">
+  <div id="app" class="h-full w-full" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);"><!-- HOME SCREEN -->
+   <div id="home-screen" class="h-full w-full flex flex-col items-center justify-center p-4 relative overflow-hidden">
+    <div class="absolute top-6 left-8 text-5xl float" style="animation-delay:0s">
+     🌟
+    </div>
+    <div class="absolute top-12 right-10 text-4xl float" style="animation-delay:0.5s">
+     🎈
+    </div>
+    <div class="absolute bottom-16 left-12 text-4xl float" style="animation-delay:1s">
+     🦋
+    </div>
+    <div class="absolute bottom-10 right-8 text-5xl float" style="animation-delay:1.5s">
+     🌈
+    </div>
+    <div class="absolute top-1/4 left-4 text-3xl float" style="animation-delay:0.7s">
+     🎀
+    </div>
+    <div class="absolute top-1/3 right-6 text-3xl float" style="animation-delay:1.2s">
+     ⭐
+    </div>
+    <div class="text-center slide-up relative z-10">
+     <div class="text-7xl mb-4">
+      🧮
+     </div>
+     <h1 id="title-text" class="text-4xl md:text-5xl font-extrabold text-white drop-shadow-lg mb-2" style="text-shadow: 3px 3px 0 rgba(0,0,0,0.2)">Toán Vui Lớp 2</h1>
+     <p class="text-xl text-yellow-200 font-semibold mb-8">Cộng - Trừ - Nhân cùng bạn nhỏ! 🎉</p>
+     <div class="flex flex-col sm:flex-row gap-4 justify-center"><button id="start-btn" onclick="startGame()" class="pulse-btn bg-gradient-to-r from-yellow-400 to-orange-400 hover:from-yellow-300 hover:to-orange-300 text-gray-900 font-extrabold text-2xl px-10 py-4 rounded-full shadow-xl">🚀 Bắt đầu chơi</button> <button onclick="showHow()" class="bg-white/25 hover:bg-white/40 text-white font-bold text-xl px-8 py-4 rounded-full shadow-lg backdrop-blur-sm">📖 Cách chơi</button>
+     </div>
+    </div>
+   </div><!-- HOW TO PLAY -->
+   <div id="how-screen" class="h-full w-full flex flex-col items-center justify-center p-4 hidden">
+    <div class="bg-white/95 backdrop-blur rounded-3xl shadow-2xl p-8 max-w-lg w-full slide-up">
+     <h2 class="text-3xl font-extrabold text-purple-700 mb-5 text-center">📖 Cách chơi</h2>
+     <div class="space-y-3 text-lg text-gray-700">
+      <p>🎯 Trả lời <b>25 câu hỏi</b> toán học vui nhộn</p>
+      <p>📝 Có 2 dạng: <b>Trắc nghiệm</b> (chọn đáp án) và <b>Phân loại</b> (kéo thả)</p>
+      <p>⏱️ Mỗi câu trả lời đúng được <b>0.4 điểm</b></p>
+      <p>🏆 Tổng điểm tối đa: <b>10 điểm</b></p>
+      <p>✅ Trả lời đúng → nghe tiếng vui 🎵</p>
+      <p>❌ Trả lời sai → xem đáp án đúng</p>
+      <p>🌟 Hoàn thành để nhận phần thưởng!</p>
+     </div><button onclick="hideHow()" class="mt-6 w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold text-xl py-3 rounded-full shadow-lg hover:shadow-xl">✨ Đã hiểu!</button>
+    </div>
+   </div><!-- GAME SCREEN -->
+   <div id="game-screen" class="h-full w-full flex flex-col p-3 hidden"><!-- Top bar -->
+    <div class="flex items-center justify-between mb-3 bg-white/20 backdrop-blur-sm rounded-2xl p-3">
+     <div class="text-white font-bold text-lg">
+      ⭐ <span id="score-display">0</span>/10
+     </div>
+     <div class="flex-1 mx-4 bg-white/30 rounded-full h-4 overflow-hidden">
+      <div id="progress-bar" class="progress-fill bg-gradient-to-r from-yellow-400 to-green-400 h-full rounded-full" style="width:0%"></div>
+     </div>
+     <div class="text-white font-bold text-lg">
+      📝 <span id="q-num">1</span>/25
+     </div>
+    </div><!-- Question area -->
+    <div class="flex-1 flex flex-col items-center justify-center">
+     <div id="question-card" class="bg-white/95 backdrop-blur rounded-3xl shadow-2xl p-6 max-w-2xl w-full"></div>
+    </div><!-- Next button -->
+    <div class="flex justify-center mt-3 mb-2"><button id="next-btn" onclick="nextQuestion()" class="hidden bg-gradient-to-r from-green-400 to-emerald-500 text-white font-bold text-xl px-10 py-3 rounded-full shadow-lg hover:shadow-xl">Câu tiếp theo ➡️</button>
+    </div>
+   </div><!-- RESULT SCREEN -->
+   <div id="result-screen" class="h-full w-full flex flex-col items-center justify-center p-4 hidden relative overflow-hidden">
+    <div id="confetti-container" class="absolute inset-0 pointer-events-none"></div>
+    <div class="bg-white/95 backdrop-blur rounded-3xl shadow-2xl p-8 max-w-md w-full text-center slide-up relative z-10">
+     <div class="text-6xl mb-4" id="result-emoji">
+      🏆
+     </div>
+     <h2 class="text-3xl font-extrabold text-purple-700 mb-2">Chúc mừng! 🎉</h2>
+     <p class="text-xl text-gray-600 mb-2">Bạn đã hoàn thành trò chơi!</p>
+     <div class="text-5xl font-extrabold my-4" id="final-score" style="background:linear-gradient(135deg,#f59e0b,#ef4444);-webkit-background-clip:text;-webkit-text-fill-color:transparent">
+      10/10
+     </div>
+     <p id="result-msg" class="text-lg text-gray-600 mb-6"></p>
+     <div class="flex flex-col gap-3"><button onclick="startGame()" class="bg-gradient-to-r from-yellow-400 to-orange-400 text-gray-900 font-bold text-xl py-3 rounded-full shadow-lg">🔄 Chơi lại</button> <button onclick="goHome()" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold text-xl py-3 rounded-full shadow-lg">🏠 Trang chủ</button>
+     </div>
+    </div>
+   </div>
+  </div>
+  <script>
+// Audio context
+let audioCtx;
+function getAudio(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx;}
+function playCorrect(){const a=getAudio(),o=a.createOscillator(),g=a.createGain();o.connect(g);g.connect(a.destination);o.type='sine';o.frequency.setValueAtTime(523,a.currentTime);o.frequency.setValueAtTime(659,a.currentTime+0.1);o.frequency.setValueAtTime(784,a.currentTime+0.2);g.gain.setValueAtTime(0.3,a.currentTime);g.gain.exponentialRampToValueAtTime(0.01,a.currentTime+0.4);o.start(a.currentTime);o.stop(a.currentTime+0.4);}
+function playWrong(){const a=getAudio(),o=a.createOscillator(),g=a.createGain();o.connect(g);g.connect(a.destination);o.type='sawtooth';o.frequency.setValueAtTime(200,a.currentTime);o.frequency.setValueAtTime(150,a.currentTime+0.2);g.gain.setValueAtTime(0.2,a.currentTime);g.gain.exponentialRampToValueAtTime(0.01,a.currentTime+0.35);o.start(a.currentTime);o.stop(a.currentTime+0.35);}
+function playWin(){const a=getAudio();[523,659,784,1047].forEach((f,i)=>{const o=a.createOscillator(),g=a.createGain();o.connect(g);g.connect(a.destination);o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0.25,a.currentTime+i*0.15);g.gain.exponentialRampToValueAtTime(0.01,a.currentTime+i*0.15+0.4);o.start(a.currentTime+i*0.15);o.stop(a.currentTime+i*0.15+0.4);});}
+
+// Game state
+let questions=[], currentQ=0, score=0, answered=false;
+
+const defaultConfig={game_title:"Toán Vui Lớp 2",start_button_text:"Bắt đầu chơi",background_color:"#667eea",surface_color:"#ffffff",text_color:"#6b21a8",primary_action_color:"#f59e0b",secondary_action_color:"#a855f7",font_family:"Baloo 2",font_size:16};
+
+function applyConfig(c){
+  document.getElementById('title-text').textContent=c.game_title||defaultConfig.game_title;
+  document.getElementById('start-btn').innerHTML='🚀 '+(c.start_button_text||defaultConfig.start_button_text);
+  const bg=c.background_color||defaultConfig.background_color;
+  document.getElementById('app').style.background=`linear-gradient(135deg, ${bg} 0%, #764ba2 50%, #f093fb 100%)`;
+  document.querySelectorAll('h1,h2').forEach(el=>el.style.color=c.text_color||defaultConfig.text_color);
+  const ff=c.font_family||defaultConfig.font_family;
+  document.body.style.fontFamily=`${ff}, cursive, sans-serif`;
+}
+
+window.elementSdk.init({
+  defaultConfig,
+  onConfigChange:async(c)=>applyConfig(c),
+  mapToCapabilities:(c)=>({
+    recolorables:[
+      {get:()=>c.background_color||defaultConfig.background_color,set:v=>{c.background_color=v;window.elementSdk.setConfig({background_color:v})}},
+      {get:()=>c.surface_color||defaultConfig.surface_color,set:v=>{c.surface_color=v;window.elementSdk.setConfig({surface_color:v})}},
+      {get:()=>c.text_color||defaultConfig.text_color,set:v=>{c.text_color=v;window.elementSdk.setConfig({text_color:v})}},
+      {get:()=>c.primary_action_color||defaultConfig.primary_action_color,set:v=>{c.primary_action_color=v;window.elementSdk.setConfig({primary_action_color:v})}},
+      {get:()=>c.secondary_action_color||defaultConfig.secondary_action_color,set:v=>{c.secondary_action_color=v;window.elementSdk.setConfig({secondary_action_color:v})}}
+    ],
+    borderables:[],
+    fontEditable:{get:()=>c.font_family||defaultConfig.font_family,set:v=>{c.font_family=v;window.elementSdk.setConfig({font_family:v})}},
+    fontSizeable:{get:()=>c.font_size||defaultConfig.font_size,set:v=>{c.font_size=v;window.elementSdk.setConfig({font_size:v})}}
+  }),
+  mapToEditPanelValues:(c)=>new Map([["game_title",c.game_title||defaultConfig.game_title],["start_button_text",c.start_button_text||defaultConfig.start_button_text]])
+});
+
+function rand(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+function shuffle(arr){for(let i=arr.length-1;i>0;i--){const j=rand(0,i);[arr[i],arr[j]]=[arr[j],arr[i]];}return arr;}
+
+function generateQuestions(){
+  const qs=[];
+  
+  // Helper to make MCQ with balanced answer distribution
+  function mcq(text,correct,level,emoji){
+    const opts=new Set([correct]);
+    const ranges=[
+      {min:-30,max:-15},
+      {min:-14,max:-1},
+      {min:1,max:14},
+      {min:15,max:30}
+    ];
+    for(const range of ranges){
+      if(opts.size>=4)break;
+      let off=rand(range.min,range.max);
+      const v=correct+off;
+      if(v>=0&&!opts.has(v)&&v!==correct)opts.add(v);
+    }
+    while(opts.size<4){
+      let off=rand(-50,50);
+      if(off===0)off=1;
+      const v=correct+off;
+      if(v>=0&&!opts.has(v)&&v!==correct)opts.add(v);
+    }
+    const options=shuffle([...opts]);
+    return {type:'mcq',text,correct,options,level,emoji};
+  }
+
+  // Helper to make classify question
+  function classify(text,items,categories,correctMap,level,emoji){
+    return {type:'classify',text,items:shuffle([...items]),categories,correctMap,level,emoji};
+  }
+
+  // BANK OF QUESTIONS - each call generates random questions
+  const bankNhanBiet=[];
+  const bankThongHieu=[];
+  const bankVanDung=[];
+  
+  // Build NHẬN BIẾT question pool
+  for(let i=0;i<15;i++){
+    let a=rand(10,99),b=rand(10,99);
+    bankNhanBiet.push(mcq(`${a} + ${b} = ?`,a+b,'nhan_biet','🐱'));
+    a=rand(100,400);b=rand(100,400);
+    bankNhanBiet.push(mcq(`${a} + ${b} = ?`,a+b,'nhan_biet','🐶'));
+    a=rand(50,200);b=rand(10,a-1);
+    bankNhanBiet.push(mcq(`${a} - ${b} = ?`,a-b,'nhan_biet','🐰'));
+    a=rand(300,900);b=rand(100,a-1);
+    bankNhanBiet.push(mcq(`${a} - ${b} = ?`,a-b,'nhan_biet','🦊'));
+    a=rand(2,9);
+    bankNhanBiet.push(mcq(`${a} × 2 = ?`,a*2,'nhan_biet','🌻'));
+    a=rand(2,5);
+    bankNhanBiet.push(mcq(`2 × ${a} = ?`,2*a,'nhan_biet','🎯'));
+    a=rand(2,9);
+    bankNhanBiet.push(mcq(`${a} × 5 = ?`,a*5,'nhan_biet','🍎'));
+    a=rand(2,5);
+    bankNhanBiet.push(mcq(`5 × ${a} = ?`,5*a,'nhan_biet','🍭'));
+  }
+  
+  // Classify nhan_biet
+  for(let i=0;i<3;i++){
+    const addItems=[],subItems=[];
+    for(let j=0;j<3;j++){let x=rand(10,99),y=rand(10,99);addItems.push(`${x} + ${y}`);let p=rand(50,200),q=rand(10,p);subItems.push(`${p} - ${q}`);}
+    const cmap={};addItems.forEach(it=>cmap[it]='Phép cộng');subItems.forEach(it=>cmap[it]='Phép trừ');
+    bankNhanBiet.push(classify('Phân loại các phép tính sau:',[...addItems,...subItems],['Phép cộng','Phép trừ'],cmap,'nhan_biet','📦'));
+  }
+  
+  // Build THÔNG HIỂU question pool
+  for(let i=0;i<15;i++){
+    let a=rand(100,500),b=rand(100,400);
+    bankThongHieu.push(mcq(`${a} + ${b} = ?`,a+b,'thong_hieu','🐻'));
+    a=rand(200,999);b=rand(100,a);
+    bankThongHieu.push(mcq(`${a} - ${b} = ?`,a-b,'thong_hieu','🦁'));
+    a=rand(50,200);b=rand(50,200);
+    bankThongHieu.push(mcq(`${a} + ? = ${a+b}. Số cần tìm là:`,b,'thong_hieu','🔍'));
+    a=rand(100,400);b=rand(50,200);
+    bankThongHieu.push(mcq(`? - ${a} = ${b}. Số cần tìm là:`,a+b,'thong_hieu','🧩'));
+    a=rand(3,9);
+    bankThongHieu.push(mcq(`${a} × 2 + 5 = ?`,a*2+5,'thong_hieu','🌈'));
+    a=rand(2,8);
+    bankThongHieu.push(mcq(`${a} × 5 - 10 = ?`,a*5-10,'thong_hieu','🎨'));
+    a=rand(100,500);b=rand(100,500);
+    bankThongHieu.push(mcq(`Tổng của ${a} và ${b} bằng bao nhiêu?`,a+b,'thong_hieu','💡'));
+  }
+  
+  // Classify thong_hieu
+  for(let i=0;i<3;i++){
+    const m2=[],m5=[];
+    for(let j=0;j<3;j++){let x=rand(2,9);m2.push(`${x} × 2 = ${x*2}`);let y=rand(2,9);m5.push(`${y} × 5 = ${y*5}`);}
+    const cmap={};m2.forEach(it=>cmap[it]='Nhân 2');m5.forEach(it=>cmap[it]='Nhân 5');
+    bankThongHieu.push(classify('Phân loại phép nhân:',[...m2,...m5],['Nhân 2','Nhân 5'],cmap,'thong_hieu','🎪'));
+  }
+  
+  // Build VẬN DỤNG question pool
+  for(let i=0;i<15;i++){
+    let a=rand(100,400),b=rand(100,300),c=rand(50,200);
+    bankVanDung.push(mcq(`${a} + ${b} - ${c} = ?`,a+b-c,'van_dung','🚀'));
+    a=rand(5,9);
+    bankVanDung.push(mcq(`Lan có ${a} túi kẹo, mỗi túi có 5 cái. Lan có tất cả bao nhiêu cái kẹo?`,a*5,'van_dung','🍬'));
+    a=rand(3,8);
+    bankVanDung.push(mcq(`Có ${a} bàn, mỗi bàn 2 bạn. Có tất cả bao nhiêu bạn?`,a*2,'van_dung','👦'));
+    a=rand(200,500);b=rand(100,200);
+    bankVanDung.push(mcq(`Thư viện có ${a} quyển sách. Mượn đi ${b} quyển. Còn lại bao nhiêu?`,a-b,'van_dung','📚'));
+    a=rand(100,300);b=rand(100,300);
+    bankVanDung.push(mcq(`Cửa hàng buổi sáng bán ${a} kg gạo, buổi chiều bán ${b} kg. Cả ngày bán bao nhiêu kg?`,a+b,'van_dung','🏪'));
+    a=rand(4,9);b=rand(3,7);
+    bankVanDung.push(mcq(`${a} × 2 + ${b} × 5 = ?`,a*2+b*5,'van_dung','🎲'));
+  }
+  
+  // Classify van_dung
+  for(let i=0;i<3;i++){
+    const lt500=[],gte500=[];
+    for(let j=0;j<3;j++){
+      let x=rand(100,200),y=rand(100,200);lt500.push(`${x} + ${y}`);
+      let p=rand(200,500),q=rand(200,400);gte500.push(`${p} + ${q}`);
+    }
+    const cmap={};lt500.forEach(it=>{const[x,y]=it.split(' + ').map(Number);cmap[it]=x+y<500?'Nhỏ hơn 500':'Lớn hơn hoặc bằng 500';});
+    gte500.forEach(it=>{const[x,y]=it.split(' + ').map(Number);cmap[it]=x+y<500?'Nhỏ hơn 500':'Lớn hơn hoặc bằng 500';});
+    bankVanDung.push(classify('Phân loại kết quả phép tính:',[...lt500,...gte500],['Nhỏ hơn 500','Lớn hơn hoặc bằng 500'],cmap,'van_dung','🏅'));
+  }
+  
+  // Classify van_dung - difficulty
+  for(let i=0;i<3;i++){
+    const easy=[],hard=[];
+    for(let j=0;j<2;j++){let x=rand(2,5);easy.push(`${x} × 2`);let y=rand(6,9);hard.push(`${y} × 5`);}
+    easy.push(`${rand(2,10)} + ${rand(2,10)}`);hard.push(`${rand(300,500)} - ${rand(100,200)}`);
+    const cmap={};easy.forEach(it=>cmap[it]='Dễ');hard.forEach(it=>cmap[it]='Khó');
+    bankVanDung.push(classify('Phân loại độ khó:',[...easy,...hard],['Dễ','Khó'],cmap,'van_dung','🧠'));
+  }
+  
+  // Select 8-9 from each level, shuffle all
+  const selected=[...shuffle(bankNhanBiet).slice(0,9),...shuffle(bankThongHieu).slice(0,8),...shuffle(bankVanDung).slice(0,8)];
+  return shuffle(selected).slice(0,25);
+}
+
+function showScreen(id){
+  ['home-screen','how-screen','game-screen','result-screen'].forEach(s=>{
+    document.getElementById(s).classList.toggle('hidden',s!==id);
+  });
+}
+function showHow(){showScreen('how-screen');}
+function hideHow(){showScreen('home-screen');}
+function goHome(){showScreen('home-screen');}
+
+function startGame(){
+  questions=generateQuestions();currentQ=0;score=0;answered=false;
+  showScreen('game-screen');
+  updateProgress();renderQuestion();
+}
+
+function updateProgress(){
+  document.getElementById('score-display')=(score).toFixed(1);
+  // Fix: use textContent
+  document.getElementById('score-display').textContent=(Math.round(score*10)/10).toFixed(1);
+  document.getElementById('q-num').textContent=currentQ+1;
+  document.getElementById('progress-bar').style.width=((currentQ)/25*100)+'%';
+}
+
+function renderQuestion(){
+  answered=false;
+  document.getElementById('next-btn').classList.add('hidden');
+  const q=questions[currentQ];
+  const card=document.getElementById('question-card');
+  card.className='bg-white/95 backdrop-blur rounded-3xl shadow-2xl p-6 max-w-2xl w-full pop';
+
+  const levelBadge=q.level==='nhan_biet'?'<span class="inline-block bg-green-100 text-green-700 text-sm font-bold px-3 py-1 rounded-full">🟢 Nhận biết</span>':
+    q.level==='thong_hieu'?'<span class="inline-block bg-blue-100 text-blue-700 text-sm font-bold px-3 py-1 rounded-full">🔵 Thông hiểu</span>':
+    '<span class="inline-block bg-orange-100 text-orange-700 text-sm font-bold px-3 py-1 rounded-full">🟠 Vận dụng</span>';
+
+  if(q.type==='mcq') renderMCQ(card,q,levelBadge);
+  else renderClassify(card,q,levelBadge);
+  updateProgress();
+}
+
+function renderMCQ(card,q,badge){
+  const colors=['from-blue-400 to-blue-500','from-pink-400 to-pink-500','from-green-400 to-green-500','from-purple-400 to-purple-500'];
+  const letters=['A','B','C','D'];
+  card.innerHTML=`
+    <div class="text-center mb-4">${badge}</div>
+    <div class="text-center text-4xl mb-2">${q.emoji}</div>
+    <h3 class="text-2xl font-bold text-gray-800 text-center mb-6">${q.text}</h3>
+    <div class="grid grid-cols-2 gap-3" id="mcq-options">
+      ${q.options.map((o,i)=>`
+        <button onclick="checkMCQ(this,${o},${q.correct})" class="option-btn bg-gradient-to-r ${colors[i]} text-white font-bold text-xl py-4 rounded-2xl shadow-md">
+          <span class="text-white/70 mr-1">${letters[i]}.</span> ${o}
+        </button>
+      `).join('')}
+    </div>
+    <div id="feedback" class="mt-4 text-center text-lg font-bold hidden"></div>
+  `;
+}
+
+function checkMCQ(btn,selected,correct){
+  if(answered)return;answered=true;
+  const btns=document.querySelectorAll('#mcq-options button');
+  const fb=document.getElementById('feedback');
+  btns.forEach(b=>{
+    const val=parseInt(b.textContent.split('. ')[1]);
+    if(val===correct){b.className='option-btn bg-gradient-to-r from-green-400 to-green-500 text-white font-bold text-xl py-4 rounded-2xl shadow-md ring-4 ring-green-300';b.innerHTML='✅ '+correct;}
+    else{b.classList.add('opacity-50');b.disabled=true;}
+  });
+  if(selected===correct){
+    score+=0.4;playCorrect();
+    fb.className='mt-4 text-center text-lg font-bold text-green-600 pop';
+    fb.textContent='🎉 Chính xác! Giỏi lắm!';fb.classList.remove('hidden');
+    spawnStars(btn);
+  }else{
+    playWrong();btn.className='option-btn bg-gradient-to-r from-red-400 to-red-500 text-white font-bold text-xl py-4 rounded-2xl shadow-md shake ring-4 ring-red-300';
+    fb.className='mt-4 text-center text-lg font-bold text-red-500 pop';
+    fb.textContent=`❌ Sai rồi! Đáp án đúng là ${correct}`;fb.classList.remove('hidden');
+  }
+  document.getElementById('next-btn').classList.remove('hidden');
+  updateProgress();
+}
+
+function spawnStars(el){
+  const emojis=['⭐','🌟','✨','💫'];
+  for(let i=0;i<6;i++){
+    const s=document.createElement('span');
+    s.className='star-burst';s.textContent=emojis[rand(0,3)];
+    s.style.cssText=`left:${rand(20,80)}%;top:${rand(20,80)}%;font-size:${rand(20,32)}px;animation-delay:${i*0.1}s;`;
+    el.parentElement.style.position='relative';el.parentElement.appendChild(s);
+    setTimeout(()=>s.remove(),1000);
+  }
+}
+
+function renderClassify(card,q,badge){
+  card.innerHTML=`
+    <div class="text-center mb-3">${badge} <span class="inline-block bg-yellow-100 text-yellow-700 text-sm font-bold px-3 py-1 rounded-full ml-2">🏷️ Kéo thả</span></div>
+    <div class="text-center text-3xl mb-2">${q.emoji}</div>
+    <h3 class="text-xl font-bold text-gray-800 text-center mb-4">${q.text}</h3>
+    <div id="drag-items" class="flex flex-wrap gap-2 justify-center mb-5 min-h-[48px]">
+      ${q.items.map((it,i)=>`<div class="drag-item bg-gradient-to-r from-indigo-100 to-purple-100 border-2 border-indigo-300 text-gray-800 font-bold px-4 py-2 rounded-xl shadow cursor-grab" data-item="${it}" draggable="true" id="drag-${i}">${it}</div>`).join('')}
+    </div>
+    <div class="grid grid-cols-2 gap-4" id="drop-zones">
+      ${q.categories.map(cat=>`
+        <div class="drop-zone bg-gradient-to-b from-gray-50 to-gray-100 border-2 border-dashed border-gray-300 rounded-2xl p-3 min-h-[120px]" data-category="${cat}">
+          <div class="text-center font-bold text-purple-700 mb-2 text-lg">${cat}</div>
+          <div class="dropped-items space-y-1"></div>
+        </div>
+      `).join('')}
+    </div>
+    <button onclick="checkClassify()" id="check-classify-btn" class="mt-4 w-full bg-gradient-to-r from-yellow-400 to-orange-400 text-gray-900 font-bold text-lg py-3 rounded-full shadow-lg">✅ Kiểm tra</button>
+    <div id="feedback" class="mt-3 text-center text-lg font-bold hidden"></div>
+  `;
+  setupDragDrop();
+}
+
+function setupDragDrop(){
+  const items=document.querySelectorAll('.drag-item');
+  const zones=document.querySelectorAll('.drop-zone');
+  const source=document.getElementById('drag-items');
+  let draggedEl=null;
+
+  items.forEach(item=>{
+    item.addEventListener('dragstart',e=>{draggedEl=item;item.classList.add('dragging');e.dataTransfer.effectAllowed='move';});
+    item.addEventListener('dragend',()=>{if(draggedEl)draggedEl.classList.remove('dragging');draggedEl=null;zones.forEach(z=>z.classList.remove('drag-over'));});
+    // Touch support
+    item.addEventListener('touchstart',e=>{draggedEl=item;item.classList.add('dragging');},{passive:true});
+    item.addEventListener('touchmove',e=>{e.preventDefault();},{passive:false});
+    item.addEventListener('touchend',e=>{
+      if(!draggedEl)return;
+      const touch=e.changedTouches[0];
+      const target=document.elementFromPoint(touch.clientX,touch.clientY);
+      const zone=target?target.closest('.drop-zone'):null;
+      if(zone){zone.querySelector('.dropped-items').appendChild(draggedEl);}
+      draggedEl.classList.remove('dragging');zones.forEach(z=>z.classList.remove('drag-over'));draggedEl=null;
+    });
+  });
+
+  zones.forEach(zone=>{
+    zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('drag-over');});
+    zone.addEventListener('dragleave',()=>zone.classList.remove('drag-over'));
+    zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('drag-over');if(draggedEl){zone.querySelector('.dropped-items').appendChild(draggedEl);draggedEl.classList.remove('dragging');draggedEl=null;}});
+  });
+
+  // Allow dragging back to source
+  source.addEventListener('dragover',e=>e.preventDefault());
+  source.addEventListener('drop',e=>{e.preventDefault();if(draggedEl){source.appendChild(draggedEl);draggedEl.classList.remove('dragging');draggedEl=null;}});
+}
+
+function checkClassify(){
+  if(answered)return;answered=true;
+  const q=questions[currentQ];
+  const zones=document.querySelectorAll('.drop-zone');
+  let allCorrect=true,totalItems=q.items.length,correctCount=0;
+
+  zones.forEach(zone=>{
+    const cat=zone.dataset.category;
+    zone.querySelectorAll('.drag-item').forEach(item=>{
+      const it=item.dataset.item;
+      if(q.correctMap[it]===cat){item.classList.add('bg-green-200','border-green-400');item.classList.remove('from-indigo-100','to-purple-100','border-indigo-300');correctCount++;}
+      else{item.classList.add('bg-red-200','border-red-400');item.classList.remove('from-indigo-100','to-purple-100','border-indigo-300');allCorrect=false;}
+    });
+  });
+
+  // Items still in source = not placed
+  document.querySelectorAll('#drag-items .drag-item').forEach(item=>{
+    item.classList.add('bg-red-200','border-red-400');item.classList.remove('from-indigo-100','to-purple-100','border-indigo-300');allCorrect=false;
+  });
+
+  const fb=document.getElementById('feedback');
+  const partial=correctCount/totalItems;
+  score+=0.4*partial;
+
+  if(allCorrect){
+    playCorrect();fb.className='mt-3 text-center text-lg font-bold text-green-600 pop';fb.textContent='🎉 Phân loại chính xác! Tuyệt vời!';
+  }else{
+    playWrong();fb.className='mt-3 text-center text-lg font-bold text-orange-500 pop';fb.textContent=`📝 Đúng ${correctCount}/${totalItems}. Cố gắng hơn nhé!`;
+  }
+  fb.classList.remove('hidden');
+  document.getElementById('check-classify-btn').classList.add('hidden');
+  document.querySelectorAll('.drag-item').forEach(d=>{d.draggable=false;d.style.cursor='default';});
+  document.getElementById('next-btn').classList.remove('hidden');
+  updateProgress();
+}
+
+function nextQuestion(){
+  currentQ++;
+  if(currentQ>=25){showResults();return;}
+  renderQuestion();
+}
+
+function showResults(){
+  showScreen('result-screen');
+  const finalScore=Math.round(score*10)/10;
+  document.getElementById('final-score').textContent=finalScore+'/10';
+  const emoji=document.getElementById('result-emoji');
+  const msg=document.getElementById('result-msg');
+  if(finalScore>=9){emoji.textContent='🏆';msg.textContent='Xuất sắc! Bạn là ngôi sao toán học! ⭐';}
+  else if(finalScore>=7){emoji.textContent='🥇';msg.textContent='Giỏi lắm! Tiếp tục phát huy nhé! 💪';}
+  else if(finalScore>=5){emoji.textContent='👍';msg.textContent='Khá tốt! Luyện thêm sẽ giỏi hơn! 📖';}
+  else{emoji.textContent='💪';msg.textContent='Cố gắng hơn nữa nhé! Bạn làm được! 🌱';}
+  playWin();spawnConfetti();
+}
+
+function spawnConfetti(){
+  const c=document.getElementById('confetti-container');c.innerHTML='';
+  const emojis=['🎉','🎊','⭐','🌟','💫','🎈','🎀','✨','🏆','🥇'];
+  for(let i=0;i<30;i++){
+    const s=document.createElement('span');s.className='confetti-piece';s.textContent=emojis[rand(0,emojis.length-1)];
+    s.style.cssText=`left:${rand(5,95)}%;bottom:0;font-size:${rand(20,36)}px;animation-delay:${Math.random()*2}s;animation-duration:${1+Math.random()*1.5}s;`;
+    c.appendChild(s);
+  }
+}
+</script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9e8ee55f830b37b5',t:'MTc3NTYyNjM5My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
